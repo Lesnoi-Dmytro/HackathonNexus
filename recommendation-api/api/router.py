@@ -1,6 +1,10 @@
+import asyncio
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from entities.topics import ALL_TOPICS
+from core import cache
+from core.config import settings
 from .schemas import RecommendRequest, RecommendResponse, MetadataResponse, ScoredSkill, ScoredPosition
 from models.recommenders.sage import TeamCompletionSAGE
 
@@ -22,7 +26,7 @@ def metadata():
 
 
 @router.post("/recommend", response_model=RecommendResponse)
-def recommend(
+async def recommend(
     body: RecommendRequest,
     model: TeamCompletionSAGE = Depends(get_model),
 ) -> RecommendResponse:
@@ -32,6 +36,14 @@ def recommend(
             detail=f"Unknown topic '{body.topic}'. Valid topics: {ALL_TOPICS}",
         )
 
+    cache_key = cache.make_cache_key(body.model_dump())
+    cached = await cache.get_cached(cache_key)
+    if cached is not None:
+        return RecommendResponse(**cached)
+
+    if settings.model_sim_delay_ms > 0:
+        await asyncio.sleep(settings.model_sim_delay_ms / 1000)
+
     result = model.recommend(
         topic=body.topic,
         max_team_size=body.max_team_size,
@@ -40,5 +52,7 @@ def recommend(
         top_k_positions=body.top_k_positions,
         skill_threshold=body.skill_threshold,
     )
+
+    await cache.set_cached(cache_key, result)
 
     return RecommendResponse(**result)

@@ -4,13 +4,16 @@ from fastapi import FastAPI
 
 from core.config import settings
 from core.model_loader import load_sage_model
+from core import cache
 from api.router import router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.model = load_sage_model()
+    await cache.connect()
     yield
+    await cache.disconnect()
 
 
 app = FastAPI(
