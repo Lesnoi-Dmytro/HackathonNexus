@@ -171,10 +171,17 @@ class TeamCompletionSAGE(torch.nn.Module):
             top_skill_ids = skill_logits.argsort(descending=True)[:top_k_skills].tolist()
 
         top_pos_ids = pos_logits.argsort(descending=True)[:top_k_positions].tolist()
+        pos_probs = torch.sigmoid(pos_logits)
 
         return {
-            "recommended_skills": [ALL_SKILLS[i] for i in top_skill_ids],
-            "recommended_positions": [ALL_POSITIONS[i] for i in top_pos_ids],
+            "recommended_skills": [
+                {"skill": ALL_SKILLS[i], "score": round(skill_probs[i].item(), 4)}
+                for i in top_skill_ids
+            ],
+            "recommended_positions": [
+                {"position": ALL_POSITIONS[i], "score": round(pos_probs[i].item(), 4)}
+                for i in top_pos_ids
+            ],
         }
 
     def save(self, path: str | Path) -> None:

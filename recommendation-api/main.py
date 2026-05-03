@@ -1,16 +1,34 @@
-# This is a sample Python script.
+from contextlib import asynccontextmanager
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from fastapi import FastAPI
 
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+from core.config import settings
+from core.model_loader import load_sage_model
+from api.router import router
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.model = load_sage_model()
+    yield
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+app = FastAPI(
+    title="Team Completion Recommendation API",
+    description=(
+        "Given a partial hackathon team composition, recommends the missing "
+        "skills and roles using a GraphSAGE-based model."
+    ),
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    lifespan=lifespan,
+)
+
+app.include_router(router)
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run("main:app", host="0.0.0.0", port=settings.port, reload=True)
+
