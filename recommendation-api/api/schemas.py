@@ -28,12 +28,6 @@ class RecommendRequest(BaseModel):
         ge=1,
         description="Max number of position recommendations. Defaults to missing_slots.",
     )
-    skill_threshold: float = Field(
-        default=0.5,
-        ge=0.0,
-        le=1.0,
-        description="Sigmoid threshold for skill prediction.",
-    )
 
 
 class ScoredSkill(BaseModel):

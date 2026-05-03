@@ -102,7 +102,6 @@ class TeamCompletionSAGE(torch.nn.Module):
             members: list[dict],
             top_k_skills: int | None = None,
             top_k_positions: int | None = None,
-            skill_threshold: float = 0.5,
     ) -> dict:
         """
         Recommend skills and positions for a partial hackathon team.
@@ -121,9 +120,6 @@ class TeamCompletionSAGE(torch.nn.Module):
                             missing_slots = max(1, max_team_size - len(members)).
         top_k_positions   : number of position recommendations to return. When None
                             (default), inferred as missing_slots.
-        skill_threshold   : sigmoid threshold for skill prediction (default 0.5,
-                            consistent with training). Skills above threshold are
-                            returned first; top_k acts as an upper cap.
 
         Returns
         -------
@@ -163,12 +159,7 @@ class TeamCompletionSAGE(torch.nn.Module):
             pos_logits[list(present_positions)] = float("-inf")
 
         skill_probs = torch.sigmoid(skill_logits)
-        above_thresh = (skill_probs > skill_threshold).nonzero(as_tuple=True)[0]
-        if len(above_thresh) > 0:
-            ranked = above_thresh[skill_probs[above_thresh].argsort(descending=True)]
-            top_skill_ids = ranked[:top_k_skills].tolist()
-        else:
-            top_skill_ids = skill_logits.argsort(descending=True)[:top_k_skills].tolist()
+        top_skill_ids = skill_probs.argsort(descending=True)[:top_k_skills].tolist()
 
         top_pos_ids = pos_logits.argsort(descending=True)[:top_k_positions].tolist()
         pos_probs = torch.sigmoid(pos_logits)

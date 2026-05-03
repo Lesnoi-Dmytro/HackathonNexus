@@ -50,7 +50,6 @@ async def recommend(
         members=[m.model_dump() for m in body.members],
         top_k_skills=body.top_k_skills,
         top_k_positions=body.top_k_positions,
-        skill_threshold=body.skill_threshold,
     )
 
     await cache.set_cached(cache_key, result)

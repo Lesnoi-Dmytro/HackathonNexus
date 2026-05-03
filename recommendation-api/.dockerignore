@@ -1,0 +1,30 @@
+# Development / environment files
+.env
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Training notebooks and raw data
+models/generate_data.ipynb
+models/train_recommendations.ipynb
+models/output/data/
+models/output/hgt/
+models/output/rf/
+
+# The SAGE checkpoint files are copied explicitly in the Dockerfile;
+# exclude the rest of the models/output tree just in case.
+models/output/sage/recommender_sage_ckpt.pt
+models/output/sage/recommender_sage_ckpt.json
+
+# Editor / OS noise
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
