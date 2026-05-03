@@ -1,0 +1,217 @@
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg, #0f0f0f);
+  color: var(--color-text, #fff);
+}
+
+/* ── Topbar ── */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 56px;
+  border-bottom: 1px solid var(--color-border, #2a2a2a);
+  background-color: var(--color-bg, #0f0f0f);
+  gap: 1rem;
+}
+
+.brand {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+  color: var(--color-text, #fff);
+  text-decoration: none;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* ── User chip ── */
+.userChip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-primary, #646cff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.userName {
+  color: var(--color-text, #fff);
+  font-weight: 500;
+}
+
+.userRole {
+  color: var(--color-muted, #888);
+  font-size: 0.75rem;
+}
+
+/* ── Notification bell ── */
+.bellWrapper {
+  position: relative;
+}
+
+.bell {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-muted, #888);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
+  padding: 0;
+}
+
+.bell:hover {
+  background: var(--color-surface, #1a1a1a);
+  color: var(--color-text, #fff);
+}
+
+.badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* ── Dropdown ── */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 340px;
+  background: var(--color-surface, #1a1a1a);
+  border: 1px solid var(--color-border, #2a2a2a);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 200;
+}
+
+.dropdownHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border, #2a2a2a);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.markAllBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--color-primary, #646cff);
+  padding: 0;
+}
+
+.markAllBtn:hover {
+  text-decoration: underline;
+}
+
+.notifList {
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.notifItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-border, #2a2a2a);
+  transition: background 0.12s;
+}
+
+.notifItem:last-child {
+  border-bottom: none;
+}
+
+.notifItem:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.notifUnread {
+  background: rgba(100, 108, 255, 0.06);
+}
+
+.notifDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary, #646cff);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.notifDotRead {
+  background: transparent;
+}
+
+.notifText {
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--color-text, #fff);
+  flex: 1;
+}
+
+.notifTime {
+  font-size: 0.72rem;
+  color: var(--color-muted, #888);
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+.notifEmpty {
+  padding: 2rem 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--color-muted, #888);
+}
+
+/* ── Main content ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}

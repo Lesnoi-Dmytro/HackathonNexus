@@ -3,6 +3,7 @@ import { CreateHackathonDto, UpdateHackathonDto } from "../dto/hackathon.dto";
 import { HackathonDto } from "../dto/response.dto";
 import { Hackathon } from "../entities/Hackathon";
 import { User } from "../entities/User";
+import { HackathonTopic } from "../models/enums";
 
 function toHackathonDto(h: Hackathon): HackathonDto {
   const dto = new HackathonDto();
@@ -22,6 +23,20 @@ function toHackathonDto(h: Hackathon): HackathonDto {
 
 export class HackathonService {
   private readonly repo = AppDataSource.getRepository(Hackathon);
+
+  async list(topic?: HackathonTopic): Promise<HackathonDto[]> {
+    const qb = this.repo
+      .createQueryBuilder("hackathon")
+      .leftJoinAndSelect("hackathon.createdBy", "createdBy")
+      .orderBy("hackathon.startDate", "ASC");
+
+    if (topic) {
+      qb.where("hackathon.topic = :topic", { topic });
+    }
+
+    const hackathons = await qb.getMany();
+    return hackathons.map(toHackathonDto);
+  }
 
   async create(dto: CreateHackathonDto, admin: User): Promise<HackathonDto> {
     const hackathon = this.repo.create({

@@ -1,26 +1,57 @@
 import {
-  Authorized,
-  Body,
-  CurrentUser,
-  HttpCode,
-  JsonController,
-  Param,
-  Patch,
-  Post,
+    Authorized,
+    Body,
+    CurrentUser,
+    Get,
+    HttpCode,
+    JsonController,
+    Param,
+    Patch,
+    Post,
+    QueryParam,
 } from "routing-controllers";
 import { OpenAPI } from "routing-controllers-openapi";
 import { CreateHackathonDto, UpdateHackathonDto } from "../dto/hackathon.dto";
 import { HackathonDto } from "../dto/response.dto";
 import { User } from "../entities/User";
-import { UserRole } from "../models/enums";
+import { HackathonTopic, UserRole } from "../models/enums";
 import { HackathonService } from "../services/HackathonService";
 
 @JsonController("/hackathons")
-@Authorized(UserRole.HACKATHON_ADMIN)
 export class HackathonController {
   private readonly hackathonService = new HackathonService();
 
+  @Get("/")
+  @Authorized()
+  @OpenAPI({
+    summary: "List all hackathons, optionally filtered by topic",
+    security: [{ bearerAuth: [] }],
+    parameters: [
+      {
+        in: "query",
+        name: "topic",
+        required: false,
+        schema: { type: "string", enum: Object.values(HackathonTopic) },
+      },
+    ],
+    responses: {
+      "200": {
+        description: "List of hackathons",
+        content: {
+          "application/json": {
+            schema: { type: "array", items: { $ref: "#/components/schemas/HackathonDto" } },
+          },
+        },
+      },
+      "401": { description: "Unauthorized" },
+    },
+  })
+  async list(@QueryParam("topic") topic?: HackathonTopic): Promise<HackathonDto[]> {
+    return this.hackathonService.list(topic);
+  }
+
   @Post("/")
+  @Authorized(UserRole.HACKATHON_ADMIN)
   @HttpCode(201)
   @OpenAPI({
     summary: "Create a new hackathon (admin only)",
@@ -50,6 +81,7 @@ export class HackathonController {
   }
 
   @Patch("/:id")
+  @Authorized(UserRole.HACKATHON_ADMIN)
   @OpenAPI({
     summary: "Update a hackathon (admin only, own hackathon)",
     security: [{ bearerAuth: [] }],
