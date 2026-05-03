@@ -1,6 +1,7 @@
-import asyncio
+import secrets
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Security, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from entities.topics import ALL_TOPICS
 from core import cache
@@ -9,6 +10,17 @@ from .schemas import RecommendRequest, RecommendResponse, MetadataResponse, Scor
 from models.recommenders.sage import TeamCompletionSAGE
 
 router = APIRouter()
+
+_bearer = HTTPBearer(auto_error=True)
+
+
+def verify_token(credentials: HTTPAuthorizationCredentials = Security(_bearer)) -> None:
+    if not secrets.compare_digest(credentials.credentials, settings.api_token):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing API token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 def get_model(request: Request) -> TeamCompletionSAGE:
@@ -20,12 +32,12 @@ def health():
     return {"status": "ok", "model": "SAGE"}
 
 
-@router.get("/metadata", response_model=MetadataResponse)
+@router.get("/metadata", response_model=MetadataResponse, dependencies=[Depends(verify_token)])
 def metadata():
     return MetadataResponse()
 
 
-@router.post("/recommend", response_model=RecommendResponse)
+@router.post("/recommend", response_model=RecommendResponse, dependencies=[Depends(verify_token)])
 async def recommend(
     body: RecommendRequest,
     model: TeamCompletionSAGE = Depends(get_model),
@@ -40,9 +52,6 @@ async def recommend(
     cached = await cache.get_cached(cache_key)
     if cached is not None:
         return RecommendResponse(**cached)
-
-    if settings.model_sim_delay_ms > 0:
-        await asyncio.sleep(settings.model_sim_delay_ms / 1000)
 
     result = model.recommend(
         topic=body.topic,

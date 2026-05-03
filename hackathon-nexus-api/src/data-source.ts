@@ -1,5 +1,6 @@
 import { DataSource } from "typeorm";
-import { User } from "./entities/User";
+import { typeormEntities } from "./entities";
+import { typeormMigrations } from "./migrations";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -8,9 +9,9 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USER || "postgres",
   password: process.env.DB_PASSWORD || "postgres",
   database: process.env.DB_NAME || "hackathon_nexus",
-  synchronize: process.env.NODE_ENV !== "production",
+  synchronize: false,
   logging: process.env.NODE_ENV === "development",
-  entities: [User],
-  migrations: [],
+  entities: typeormEntities,
+  migrations: typeormMigrations,
   subscribers: [],
 });

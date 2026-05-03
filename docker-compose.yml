@@ -27,6 +27,23 @@ services:
       timeout: 5s
       retries: 5
 
+  hackathon-nexus-api:
+    build: ./hackathon-nexus-api
+    ports:
+      - "${API_PORT:-3000}:3000"
+    env_file:
+      - ./hackathon-nexus-api/.env
+    environment:
+      PORT: "3000"
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      RECOMMEND_API_URL: "http://recommendation-api:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   recommendation-api:
     build: ./recommendation-api
     ports:

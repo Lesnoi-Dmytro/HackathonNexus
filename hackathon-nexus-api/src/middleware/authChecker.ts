@@ -2,11 +2,12 @@ import jwt from "jsonwebtoken";
 import { Action } from "routing-controllers";
 import { AppDataSource } from "../data-source";
 import { User } from "../entities/User";
+import { UserRole } from "../models/enums";
 
 interface JwtPayload {
   sub: string;
   email: string;
-  isAdmin: boolean;
+  role: UserRole;
   iat: number;
   exp: number;
 }
@@ -23,7 +24,11 @@ export async function authorizationChecker(action: Action, roles: string[]): Pro
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-    if (roles.length > 0 && roles.includes("admin") && !payload.isAdmin) {
+    if (
+      roles.length > 0 &&
+      roles.includes(UserRole.HACKATHON_ADMIN) &&
+      payload.role !== UserRole.HACKATHON_ADMIN
+    ) {
       return false;
     }
     return true;

@@ -2,9 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { UserRole } from "../models/enums";
+import { Participant } from "./Participant";
 
 @Entity("users")
 export class User {
@@ -23,8 +26,11 @@ export class User {
   @Column({ select: false })
   password!: string;
 
-  @Column({ default: false })
-  isAdmin!: boolean;
+  @Column({ type: "enum", enum: UserRole, default: UserRole.PARTICIPANT })
+  role!: UserRole;
+
+  @OneToOne(() => Participant, (participant) => participant.user, { nullable: true, eager: false })
+  participant?: Participant;
 
   @CreateDateColumn()
   createdAt!: Date;

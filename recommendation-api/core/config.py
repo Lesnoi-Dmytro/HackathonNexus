@@ -6,12 +6,10 @@ class Settings(BaseSettings):
 
     port: int = 8000
 
-    # Redis cache
-    redis_url: str = "redis://localhost:6379"
-    cache_ttl_seconds: int = 600  # 10 minutes
+    api_token: str
 
-    # Simulate slow inference on low-end hardware (0 = disabled)
-    model_sim_delay_ms: int = 0
+    redis_url: str = "redis://localhost:6379"
+    cache_ttl_seconds: int = 600
 
 
 settings = Settings()
