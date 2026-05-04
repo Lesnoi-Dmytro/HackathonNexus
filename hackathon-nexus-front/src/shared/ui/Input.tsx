@@ -1,7 +1,7 @@
-import * as LabelPrimitive from '@radix-ui/react-label';
-import { clsx } from 'clsx';
-import { forwardRef, type InputHTMLAttributes, type ReactNode } from 'react';
-import styles from './Input.module.css';
+import * as LabelPrimitive from "@radix-ui/react-label";
+import { clsx } from "clsx";
+import { forwardRef, type InputHTMLAttributes, type ReactNode } from "react";
+import styles from "./Input.module.css";
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -9,33 +9,22 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
   left?: ReactNode;
   right?: ReactNode;
-  inputSize?: 'sm' | 'md' | 'lg';
+  inputSize?: "sm" | "md" | "lg";
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
   (
-    {
-      className,
-      id,
-      label,
-      hint,
-      error,
-      left,
-      right,
-      inputSize = 'md',
-      disabled,
-      ...props
-    },
+    { className, id, label, hint, error, left, right, inputSize = "md", disabled, ...props },
     ref,
   ) => {
-    const inputId = id ?? (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
+    const inputId = id ?? (label ? label.toLowerCase().replace(/\s+/g, "-") : undefined);
 
     return (
       <div
         className={clsx(
           styles.wrapper,
-          inputSize === 'sm' && styles.sm,
-          inputSize === 'lg' && styles.lg,
+          inputSize === "sm" && styles.sm,
+          inputSize === "lg" && styles.lg,
           error && styles.error,
         )}
       >
@@ -43,18 +32,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           <LabelPrimitive.Root
             htmlFor={inputId}
             className={styles.label}
-            data-disabled={disabled ? '' : undefined}
+            data-disabled={disabled ? "" : undefined}
           >
             {label}
           </LabelPrimitive.Root>
         )}
 
         <div
-          className={clsx(
-            styles.inputWrapper,
-            left && styles.hasLeft,
-            right && styles.hasRight,
-          )}
+          className={clsx(styles.inputWrapper, left && styles.hasLeft, right && styles.hasRight)}
         >
           {left && <span className={styles.addonLeft}>{left}</span>}
 
@@ -63,10 +48,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             disabled={disabled}
             className={clsx(styles.input, className)}
-            aria-invalid={error ? 'true' : undefined}
-            aria-describedby={
-              error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined
-            }
+            aria-invalid={error ? "true" : undefined}
+            aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
             {...props}
           />
 
@@ -87,7 +70,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
   },
 );
 
-Input.displayName = 'Input';
+Input.displayName = "Input";
 
 export { Input };
-

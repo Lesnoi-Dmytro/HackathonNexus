@@ -1,40 +1,40 @@
-import { type FormEvent, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { register, type UserRole } from '../api/auth';
-import { useAuth } from '../contexts/AuthContext';
-import { Button } from '../shared/ui/Button';
-import { Input } from '../shared/ui/Input';
-import { Select } from '../shared/ui/Select';
-import styles from './AuthPage.module.css';
+import { type FormEvent, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { register, type UserRole } from "../api/auth";
+import { useAuth } from "../contexts/AuthContext";
+import { Button } from "../shared/ui/Button";
+import { Input } from "../shared/ui/Input";
+import { Select } from "../shared/ui/Select";
+import styles from "./AuthPage.module.css";
 
 const ROLE_OPTIONS = [
-  { value: 'participant', label: 'Participant' },
-  { value: 'hackathon-admin', label: 'Hackathon Admin' },
+  { value: "participant", label: "Participant" },
+  { value: "hackathon-admin", label: "Hackathon Admin" },
 ];
 
 export function RegisterPage() {
   const navigate = useNavigate();
   const { setAuth } = useAuth();
 
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('participant');
-  const [error, setError] = useState('');
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState<UserRole>("participant");
+  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsSubmitting(true);
 
     try {
       const { accessToken, user } = await register({ firstName, lastName, email, password, role });
       setAuth(accessToken, user);
-      navigate('/hackathons', { replace: true });
+      navigate("/hackathons", { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed');
+      setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
       setIsSubmitting(false);
     }
@@ -92,12 +92,12 @@ export function RegisterPage() {
           {error && <p className={styles.error}>{error}</p>}
 
           <Button type="submit" size="lg" disabled={isSubmitting} className={styles.submit}>
-            {isSubmitting ? 'Creating account…' : 'Create account'}
+            {isSubmitting ? "Creating account…" : "Create account"}
           </Button>
         </form>
 
         <p className={styles.footer}>
-          Already have an account?{' '}
+          Already have an account?{" "}
           <Link to="/login" className={styles.link}>
             Sign in
           </Link>

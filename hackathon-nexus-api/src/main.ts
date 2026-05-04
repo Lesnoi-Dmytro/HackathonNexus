@@ -33,8 +33,8 @@ async function bootstrap(): Promise<void> {
   const app = express();
   const httpServer = createServer(app);
 
-  const allowedOrigins = (process.env.CORS_ORIGIN ?? 'http://localhost:5173')
-    .split(',')
+  const allowedOrigins = (process.env.CORS_ORIGIN ?? "http://localhost:5173")
+    .split(",")
     .map((o) => o.trim());
 
   app.use(

@@ -1,29 +1,35 @@
 // Mirror of the backend AppNotification discriminated union (payload shapes only)
 
 export interface JoinRequestNotification {
-  type: 'team:join-request';
+  type: "team:join-request";
   requestId: string;
   teamId: string;
   teamName: string;
-  participant: { id: string; firstName: string; lastName: string; position?: string; skills: string[] };
+  participant: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    position?: string;
+    skills: string[];
+  };
 }
 
 export interface JoinRequestAcceptedNotification {
-  type: 'team:join-request:accepted';
+  type: "team:join-request:accepted";
   requestId: string;
   teamId: string;
   teamName: string;
 }
 
 export interface JoinRequestRejectedNotification {
-  type: 'team:join-request:rejected';
+  type: "team:join-request:rejected";
   requestId: string;
   teamId: string;
   teamName: string;
 }
 
 export interface InviteNotification {
-  type: 'team:invite';
+  type: "team:invite";
   requestId: string;
   teamId: string;
   teamName: string;
@@ -31,14 +37,14 @@ export interface InviteNotification {
 }
 
 export interface InviteAcceptedNotification {
-  type: 'team:invite:accepted';
+  type: "team:invite:accepted";
   requestId: string;
   teamId: string;
   participant: { id: string; firstName: string; lastName: string };
 }
 
 export interface InviteRejectedNotification {
-  type: 'team:invite:rejected';
+  type: "team:invite:rejected";
   requestId: string;
   teamId: string;
   participant: { id: string; firstName: string; lastName: string };
@@ -54,17 +60,17 @@ export type AppNotification =
 
 export function notificationText(n: AppNotification): string {
   switch (n.type) {
-    case 'team:join-request':
+    case "team:join-request":
       return `${n.participant.firstName} ${n.participant.lastName} wants to join team "${n.teamName}"`;
-    case 'team:join-request:accepted':
+    case "team:join-request:accepted":
       return `Your request to join "${n.teamName}" was accepted`;
-    case 'team:join-request:rejected':
+    case "team:join-request:rejected":
       return `Your request to join "${n.teamName}" was rejected`;
-    case 'team:invite':
+    case "team:invite":
       return `${n.leader.firstName} ${n.leader.lastName} invited you to team "${n.teamName}"`;
-    case 'team:invite:accepted':
+    case "team:invite:accepted":
       return `${n.participant.firstName} ${n.participant.lastName} accepted your invite`;
-    case 'team:invite:rejected':
+    case "team:invite:rejected":
       return `${n.participant.firstName} ${n.participant.lastName} declined your invite`;
   }
 }

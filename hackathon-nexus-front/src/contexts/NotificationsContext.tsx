@@ -1,34 +1,30 @@
 import {
-    createContext,
-    useCallback,
-    useContext,
-    useEffect,
-    useRef,
-    useState,
-    type ReactNode,
-} from 'react';
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import { getNotifications, markNotificationRead, type NotificationDto } from "../api/notifications";
+import { notificationText, type AppNotification } from "../api/notifications.types";
+import { connectSocket, disconnectSocket } from "../services/socketService";
 import {
-    getNotifications,
-    markNotificationRead,
-    type NotificationDto,
-} from '../api/notifications';
-import { notificationText, type AppNotification } from '../api/notifications.types';
-import { connectSocket, disconnectSocket } from '../services/socketService';
-import {
-    Toast,
-    ToastClose,
-    ToastDescription,
-    ToastProvider,
-    ToastTitle,
-    ToastViewport,
-} from '../shared/ui/Toast';
+  Toast,
+  ToastClose,
+  ToastDescription,
+  ToastProvider,
+  ToastTitle,
+  ToastViewport,
+} from "../shared/ui/Toast";
 
 /* ── Toast state ─────────────────────────────────────────────── */
 interface ToastItem {
   id: string;
   title: string;
   description: string;
-  variant: 'default' | 'success' | 'destructive';
+  variant: "default" | "success" | "destructive";
   open: boolean;
 }
 
@@ -39,14 +35,14 @@ export interface NotificationsContextValue {
   markRead: (id: string) => Promise<void>;
   markAllRead: () => Promise<void>;
   /** Manually add a toast (e.g. for action confirmations elsewhere). */
-  toast: (title: string, description?: string, variant?: ToastItem['variant']) => void;
+  toast: (title: string, description?: string, variant?: ToastItem["variant"]) => void;
 }
 
 const NotificationsContext = createContext<NotificationsContextValue | null>(null);
 
 export function useNotifications(): NotificationsContextValue {
   const ctx = useContext(NotificationsContext);
-  if (!ctx) throw new Error('useNotifications must be used inside <NotificationsProvider>');
+  if (!ctx) throw new Error("useNotifications must be used inside <NotificationsProvider>");
   return ctx;
 }
 
@@ -58,20 +54,20 @@ interface Props {
   children: ReactNode;
 }
 
-function toastForNotification(payload: AppNotification): Pick<ToastItem, 'title' | 'variant'> {
+function toastForNotification(payload: AppNotification): Pick<ToastItem, "title" | "variant"> {
   switch (payload.type) {
-    case 'team:join-request':
-      return { title: 'Join request', variant: 'default' };
-    case 'team:join-request:accepted':
-      return { title: 'Request accepted', variant: 'success' };
-    case 'team:join-request:rejected':
-      return { title: 'Request rejected', variant: 'destructive' };
-    case 'team:invite':
-      return { title: 'Team invite', variant: 'default' };
-    case 'team:invite:accepted':
-      return { title: 'Invite accepted', variant: 'success' };
-    case 'team:invite:rejected':
-      return { title: 'Invite declined', variant: 'destructive' };
+    case "team:join-request":
+      return { title: "Join request", variant: "default" };
+    case "team:join-request:accepted":
+      return { title: "Request accepted", variant: "success" };
+    case "team:join-request:rejected":
+      return { title: "Request rejected", variant: "destructive" };
+    case "team:invite":
+      return { title: "Team invite", variant: "default" };
+    case "team:invite:accepted":
+      return { title: "Invite accepted", variant: "success" };
+    case "team:invite:rejected":
+      return { title: "Invite declined", variant: "destructive" };
   }
 }
 
@@ -82,7 +78,7 @@ export function NotificationsProvider({ token, children }: Props) {
 
   /* ── helpers ─────────────────────────────────────────────── */
   const addToast = useCallback(
-    (title: string, description = '', variant: ToastItem['variant'] = 'default') => {
+    (title: string, description = "", variant: ToastItem["variant"] = "default") => {
       const id = `toast-${++counterRef.current}`;
       setToasts((prev) => [...prev, { id, title, description, variant, open: true }]);
     },
@@ -98,7 +94,9 @@ export function NotificationsProvider({ token, children }: Props) {
     if (!token) return;
     getNotifications(token, { limit: 50 })
       .then((page) => setNotifications(page.data))
-      .catch(() => {/* silently ignore */});
+      .catch(() => {
+        /* silently ignore */
+      });
   }, [token]);
 
   /* ── Socket connection ───────────────────────────────────── */
@@ -107,7 +105,7 @@ export function NotificationsProvider({ token, children }: Props) {
 
     const socket = connectSocket(token);
 
-    socket.on('notification', (payload) => {
+    socket.on("notification", (payload) => {
       // Prepend as an unread notification so the bell updates immediately
       const fake: NotificationDto = {
         id: `ws-${Date.now()}`,
@@ -122,13 +120,13 @@ export function NotificationsProvider({ token, children }: Props) {
       addToast(title, notificationText(payload), variant);
     });
 
-    socket.on('connect_error', (err) => {
-      console.warn('[WS] connection error', err.message);
+    socket.on("connect_error", (err) => {
+      console.warn("[WS] connection error", err.message);
     });
 
     return () => {
-      socket.off('notification');
-      socket.off('connect_error');
+      socket.off("notification");
+      socket.off("connect_error");
       disconnectSocket();
     };
   }, [token, addToast]);

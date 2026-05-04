@@ -8,28 +8,28 @@ import {
   Radio,
   Ticket,
   Users,
-} from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   getHackathon,
   registerForHackathon,
   unregisterFromHackathon,
   type HackathonDto,
-} from '../api/hackathons';
-import { MetaCard } from '../components/hackathon/MetaCard';
-import { useAuth } from '../contexts/AuthContext';
-import { useNotifications } from '../contexts/NotificationsContext';
-import { Button } from '../shared/ui/Button';
-import styles from './HackathonDetailPage.module.css';
+} from "../api/hackathons";
+import { MetaCard } from "../components/hackathon/MetaCard";
+import { useAuth } from "../contexts/AuthContext";
+import { useNotifications } from "../contexts/NotificationsContext";
+import { Button } from "../shared/ui/Button";
+import styles from "./HackathonDetailPage.module.css";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
 
@@ -47,17 +47,17 @@ export function HackathonDetailPage() {
 
   const [hackathon, setHackathon] = useState<HackathonDto | null>(null);
   const [loadingHackathon, setLoadingHackathon] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [registering, setRegistering] = useState(false);
 
-  const isParticipant = user?.role === 'participant';
+  const isParticipant = user?.role === "participant";
 
   useEffect(() => {
     if (!token || !id) return;
     setLoadingHackathon(true);
     getHackathon(token, id)
       .then(setHackathon)
-      .catch((err: unknown) => setError(err instanceof Error ? err.message : 'Failed to load'))
+      .catch((err: unknown) => setError(err instanceof Error ? err.message : "Failed to load"))
       .finally(() => setLoadingHackathon(false));
   }, [token, id]);
 
@@ -67,9 +67,13 @@ export function HackathonDetailPage() {
     try {
       const updated = await registerForHackathon(token, id);
       setHackathon(updated);
-      toast('Registered!', `You joined "${updated.title}"`, 'success');
+      toast("Registered!", `You joined "${updated.title}"`, "success");
     } catch (err) {
-      toast('Registration failed', err instanceof Error ? err.message : 'Unknown error', 'destructive');
+      toast(
+        "Registration failed",
+        err instanceof Error ? err.message : "Unknown error",
+        "destructive",
+      );
     } finally {
       setRegistering(false);
     }
@@ -83,9 +87,9 @@ export function HackathonDetailPage() {
       setHackathon((h) =>
         h ? { ...h, isRegistered: false, participantCount: h.participantCount - 1 } : h,
       );
-      toast('Unregistered', `You left "${hackathon.title}"`, 'default');
+      toast("Unregistered", `You left "${hackathon.title}"`, "default");
     } catch (err) {
-      toast('Failed', err instanceof Error ? err.message : 'Unknown error', 'destructive');
+      toast("Failed", err instanceof Error ? err.message : "Unknown error", "destructive");
     } finally {
       setRegistering(false);
     }
@@ -95,8 +99,8 @@ export function HackathonDetailPage() {
   if (error || !hackathon) {
     return (
       <div className={styles.state}>
-        <p className={styles.stateError}>{error || 'Hackathon not found'}</p>
-        <Button variant="outline" size="sm" onClick={() => navigate('/hackathons')}>
+        <p className={styles.stateError}>{error || "Hackathon not found"}</p>
+        <Button variant="outline" size="sm" onClick={() => navigate("/hackathons")}>
           Back
         </Button>
       </div>
@@ -112,7 +116,7 @@ export function HackathonDetailPage() {
 
   return (
     <div className={styles.page}>
-      <button type="button" className={styles.backBtn} onClick={() => navigate('/hackathons')}>
+      <button type="button" className={styles.backBtn} onClick={() => navigate("/hackathons")}>
         <ChevronLeft size={16} /> Back to hackathons
       </button>
 
@@ -132,10 +136,26 @@ export function HackathonDetailPage() {
       </div>
 
       <div className={styles.metaGrid}>
-        <MetaCard icon={<Calendar size={18} />} label="Starts" value={formatDate(hackathon.startDate)} />
-        <MetaCard icon={<Flag size={18} />} label="Ends" value={endDate(hackathon.startDate, hackathon.durationHours)} />
-        <MetaCard icon={<Clock size={18} />} label="Duration" value={`${hackathon.durationHours}h`} />
-        <MetaCard icon={<Users size={18} />} label="Max team size" value={String(hackathon.maxTeamSize)} />
+        <MetaCard
+          icon={<Calendar size={18} />}
+          label="Starts"
+          value={formatDate(hackathon.startDate)}
+        />
+        <MetaCard
+          icon={<Flag size={18} />}
+          label="Ends"
+          value={endDate(hackathon.startDate, hackathon.durationHours)}
+        />
+        <MetaCard
+          icon={<Clock size={18} />}
+          label="Duration"
+          value={`${hackathon.durationHours}h`}
+        />
+        <MetaCard
+          icon={<Users size={18} />}
+          label="Max team size"
+          value={String(hackathon.maxTeamSize)}
+        />
         {hackathon.maxParticipants != null && (
           <MetaCard
             icon={<Ticket size={18} />}
@@ -153,9 +173,7 @@ export function HackathonDetailPage() {
       </div>
 
       {hasEnded && (
-        <div className={`${styles.banner} ${styles.bannerEnded}`}>
-          This hackathon has ended
-        </div>
+        <div className={`${styles.banner} ${styles.bannerEnded}`}>This hackathon has ended</div>
       )}
       {!hasEnded && hasStarted && (
         <div className={`${styles.banner} ${styles.bannerOngoing}`}>
@@ -172,7 +190,7 @@ export function HackathonDetailPage() {
               </span>
               {!hasStarted && (
                 <Button variant="ghost" size="sm" onClick={handleUnregister} disabled={registering}>
-                  {registering ? 'Processing…' : 'Unregister'}
+                  {registering ? "Processing…" : "Unregister"}
                 </Button>
               )}
             </div>
@@ -180,7 +198,7 @@ export function HackathonDetailPage() {
             <span className={styles.fullBadge}>Registration full</span>
           ) : (
             <Button onClick={handleRegister} disabled={registering}>
-              {registering ? 'Registering…' : 'Register for this hackathon'}
+              {registering ? "Registering…" : "Register for this hackathon"}
             </Button>
           )}
         </div>
@@ -202,4 +220,3 @@ export function HackathonDetailPage() {
     </div>
   );
 }
-

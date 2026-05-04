@@ -1,14 +1,14 @@
-import { ChevronLeft } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { getHackathon, type HackathonDto } from '../api/hackathons';
-import { findTeams, type TeamsPage } from '../api/teams';
-import { TeamCard } from '../components/team/TeamCard';
-import { useAuth } from '../contexts/AuthContext';
-import { useNotifications } from '../contexts/NotificationsContext';
-import { getSocket } from '../services/socketService';
-import { Input } from '../shared/ui/Input';
-import styles from './TeamSearchPage.module.css';
+import { ChevronLeft } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getHackathon, type HackathonDto } from "../api/hackathons";
+import { findTeams, type TeamsPage } from "../api/teams";
+import { TeamCard } from "../components/team/TeamCard";
+import { useAuth } from "../contexts/AuthContext";
+import { useNotifications } from "../contexts/NotificationsContext";
+import { getSocket } from "../services/socketService";
+import { Input } from "../shared/ui/Input";
+import styles from "./TeamSearchPage.module.css";
 
 export function TeamSearchPage() {
   const { id } = useParams<{ id: string }>();
@@ -20,10 +20,10 @@ export function TeamSearchPage() {
   const [loadingHackathon, setLoadingHackathon] = useState(true);
 
   const [teamsPage, setTeamsPage] = useState<TeamsPage | null>(null);
-  const [teamsSearch, setTeamsSearch] = useState('');
+  const [teamsSearch, setTeamsSearch] = useState("");
   const [loadingTeams, setLoadingTeams] = useState(false);
   const teamsSearchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [debouncedTeamsSearch, setDebouncedTeamsSearch] = useState('');
+  const [debouncedTeamsSearch, setDebouncedTeamsSearch] = useState("");
 
   useEffect(() => {
     if (!token || !id) return;
@@ -67,12 +67,12 @@ export function TeamSearchPage() {
   function handleRequestJoin(teamId: string, teamName: string) {
     const socket = getSocket();
     if (!socket) {
-      toast('Not connected', 'WebSocket not connected', 'destructive');
+      toast("Not connected", "WebSocket not connected", "destructive");
       return;
     }
-    socket.emit('team:request-join', { teamId }, (err: string | null) => {
-      if (err) toast('Request failed', err, 'destructive');
-      else toast('Request sent', `Join request sent to team "${teamName}"`, 'success');
+    socket.emit("team:request-join", { teamId }, (err: string | null) => {
+      if (err) toast("Request failed", err, "destructive");
+      else toast("Request sent", `Join request sent to team "${teamName}"`, "success");
     });
   }
 
@@ -108,14 +108,16 @@ export function TeamSearchPage() {
       {!loadingTeams && teamsPage && teamsPage.teams.length === 0 && (
         <p className={styles.stateSmall}>No teams found. Be the first to create one!</p>
       )}
-      {!loadingTeams && teamsPage && teamsPage.teams.map((team) => (
-        <TeamCard
-          key={team.id}
-          team={team}
-          maxTeamSize={hackathon.maxTeamSize}
-          onRequestJoin={() => handleRequestJoin(team.id, team.name)}
-        />
-      ))}
+      {!loadingTeams &&
+        teamsPage &&
+        teamsPage.teams.map((team) => (
+          <TeamCard
+            key={team.id}
+            team={team}
+            maxTeamSize={hackathon.maxTeamSize}
+            onRequestJoin={() => handleRequestJoin(team.id, team.name)}
+          />
+        ))}
     </div>
   );
 }

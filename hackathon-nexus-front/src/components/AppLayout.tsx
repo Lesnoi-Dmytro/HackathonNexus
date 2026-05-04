@@ -1,16 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
-import type { NotificationDto } from '../api/notifications';
-import { notificationText } from '../api/notifications.types';
-import { useAuth } from '../contexts/AuthContext';
-import { useNotifications } from '../contexts/NotificationsContext';
-import { Button } from '../shared/ui/Button';
-import styles from './AppLayout.module.css';
+import { useEffect, useRef, useState } from "react";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import type { NotificationDto } from "../api/notifications";
+import { notificationText } from "../api/notifications.types";
+import { useAuth } from "../contexts/AuthContext";
+import { useNotifications } from "../contexts/NotificationsContext";
+import { Button } from "../shared/ui/Button";
+import styles from "./AppLayout.module.css";
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60_000);
-  if (mins < 1) return 'just now';
+  if (mins < 1) return "just now";
   if (mins < 60) return `${mins}m ago`;
   const hrs = Math.floor(mins / 60);
   if (hrs < 24) return `${hrs}h ago`;
@@ -32,8 +32,8 @@ export function AppLayout() {
         setDropdownOpen(false);
       }
     }
-    document.addEventListener('mousedown', onClickOutside);
-    return () => document.removeEventListener('mousedown', onClickOutside);
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
   async function handleNotificationClick(n: NotificationDto) {
@@ -43,14 +43,12 @@ export function AppLayout() {
 
   function handleLogout() {
     logout();
-    navigate('/login', { replace: true });
+    navigate("/login", { replace: true });
   }
 
-  const initials = user
-    ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
-    : '?';
+  const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : "?";
 
-  const roleLabel = user?.role === 'hackathon-admin' ? 'Admin' : 'Participant';
+  const roleLabel = user?.role === "hackathon-admin" ? "Admin" : "Participant";
 
   return (
     <div className={styles.layout}>
@@ -71,7 +69,7 @@ export function AppLayout() {
             >
               <BellIcon />
               {unreadCount > 0 && (
-                <span className={styles.badge}>{unreadCount > 99 ? '99+' : unreadCount}</span>
+                <span className={styles.badge}>{unreadCount > 99 ? "99+" : unreadCount}</span>
               )}
             </button>
 
@@ -92,13 +90,15 @@ export function AppLayout() {
                     notifications.map((n) => (
                       <div
                         key={n.id}
-                        className={`${styles.notifItem} ${!n.read ? styles.notifUnread : ''}`}
+                        className={`${styles.notifItem} ${!n.read ? styles.notifUnread : ""}`}
                         onClick={() => handleNotificationClick(n)}
                         role="button"
                         tabIndex={0}
-                        onKeyDown={(e) => e.key === 'Enter' && handleNotificationClick(n)}
+                        onKeyDown={(e) => e.key === "Enter" && handleNotificationClick(n)}
                       >
-                        <span className={`${styles.notifDot} ${n.read ? styles.notifDotRead : ''}`} />
+                        <span
+                          className={`${styles.notifDot} ${n.read ? styles.notifDotRead : ""}`}
+                        />
                         <span className={styles.notifText}>{notificationText(n.payload)}</span>
                         <span className={styles.notifTime}>{timeAgo(n.createdAt)}</span>
                       </div>

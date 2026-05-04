@@ -1,15 +1,15 @@
 import {
-    createContext,
-    useCallback,
-    useContext,
-    useEffect,
-    useMemo,
-    useState,
-    type ReactNode,
-} from 'react';
-import { getMe, type UserDto } from '../api/auth';
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+import { getMe, type UserDto } from "../api/auth";
 
-const TOKEN_KEY = 'hn_access_token';
+const TOKEN_KEY = "hn_access_token";
 
 interface AuthContextValue {
   user: UserDto | null;
@@ -67,6 +67,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
+  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
   return ctx;
 }

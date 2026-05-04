@@ -1,5 +1,9 @@
 import { AppDataSource } from "../data-source";
-import { CreateHackathonDto, ListHackathonsQueryDto, UpdateHackathonDto } from "../dto/hackathon.dto";
+import {
+  CreateHackathonDto,
+  ListHackathonsQueryDto,
+  UpdateHackathonDto,
+} from "../dto/hackathon.dto";
 import { HackathonDto, HackathonsPageDto } from "../dto/response.dto";
 import { Hackathon } from "../entities/Hackathon";
 import { Participant } from "../entities/Participant";
@@ -13,7 +17,10 @@ interface HackathonComputedFields {
 
 function toHackathonDto(
   h: Hackathon,
-  { participantCount, isRegistered }: HackathonComputedFields = { participantCount: 0, isRegistered: false },
+  { participantCount, isRegistered }: HackathonComputedFields = {
+    participantCount: 0,
+    isRegistered: false,
+  },
 ): HackathonDto {
   const dto = new HackathonDto();
   dto.id = h.id;
@@ -54,21 +61,20 @@ export class HackathonService {
       return { countMap: new Map(), registeredSet: new Set() };
     }
 
-    const counts: { hackathonId: string; count: string }[] = await AppDataSource
-      .createQueryBuilder()
-      .select("hr.hackathonId", "hackathonId")
-      .addSelect("COUNT(*)", "count")
-      .from("hackathon_registrations", "hr")
-      .where("hr.hackathonId IN (:...ids)", { ids: hackathonIds })
-      .groupBy("hr.hackathonId")
-      .getRawMany();
+    const counts: { hackathonId: string; count: string }[] =
+      await AppDataSource.createQueryBuilder()
+        .select("hr.hackathonId", "hackathonId")
+        .addSelect("COUNT(*)", "count")
+        .from("hackathon_registrations", "hr")
+        .where("hr.hackathonId IN (:...ids)", { ids: hackathonIds })
+        .groupBy("hr.hackathonId")
+        .getRawMany();
 
     const countMap = new Map(counts.map((c) => [c.hackathonId, parseInt(c.count, 10)]));
 
     let registeredSet = new Set<string>();
     if (participantId) {
-      const registered: { hackathonId: string }[] = await AppDataSource
-        .createQueryBuilder()
+      const registered: { hackathonId: string }[] = await AppDataSource.createQueryBuilder()
         .select("hr.hackathonId", "hackathonId")
         .from("hackathon_registrations", "hr")
         .where("hr.hackathonId IN (:...ids)", { ids: hackathonIds })
@@ -104,10 +110,9 @@ export class HackathonService {
 
     if (query.notEnded) {
       // ended = startDate + durationHours has passed
-      qb.andWhere(
-        "hackathon.startDate + (hackathon.durationHours * interval '1 hour') > :now",
-        { now },
-      );
+      qb.andWhere("hackathon.startDate + (hackathon.durationHours * interval '1 hour') > :now", {
+        now,
+      });
     }
 
     const [rows, total] = await qb
@@ -176,8 +181,7 @@ export class HackathonService {
     }
 
     // Check if already registered
-    const existing: { count: string }[] = await AppDataSource
-      .createQueryBuilder()
+    const existing: { count: string }[] = await AppDataSource.createQueryBuilder()
       .select("COUNT(*)", "count")
       .from("hackathon_registrations", "hr")
       .where("hr.hackathonId = :hid", { hid: id })
@@ -191,8 +195,7 @@ export class HackathonService {
 
     // Check capacity
     if (hackathon.maxParticipants != null) {
-      const countRows: { count: string }[] = await AppDataSource
-        .createQueryBuilder()
+      const countRows: { count: string }[] = await AppDataSource.createQueryBuilder()
         .select("COUNT(*)", "count")
         .from("hackathon_registrations", "hr")
         .where("hr.hackathonId = :hid", { hid: id })
@@ -205,8 +208,7 @@ export class HackathonService {
       }
     }
 
-    await AppDataSource
-      .createQueryBuilder()
+    await AppDataSource.createQueryBuilder()
       .insert()
       .into("hackathon_registrations")
       .values({ hackathonId: id, participantId: participant.id })
@@ -229,8 +231,7 @@ export class HackathonService {
       throw err;
     }
 
-    await AppDataSource
-      .createQueryBuilder()
+    await AppDataSource.createQueryBuilder()
       .delete()
       .from("hackathon_registrations")
       .where("hackathonId = :hid", { hid: id })

@@ -2,10 +2,10 @@ import { In } from "typeorm";
 import { fetchRecommendations } from "../clients/RecommendClient";
 import { AppDataSource } from "../data-source";
 import {
-    MembersRecommendResponseDto,
-    TeamDto,
-    TeamMemberDto,
-    TeamsRecommendResponseDto,
+  MembersRecommendResponseDto,
+  TeamDto,
+  TeamMemberDto,
+  TeamsRecommendResponseDto,
 } from "../dto/response.dto";
 import { CreateTeamDto, FindMembersQueryDto, FindTeamsQueryDto } from "../dto/team.dto";
 import { Hackathon } from "../entities/Hackathon";

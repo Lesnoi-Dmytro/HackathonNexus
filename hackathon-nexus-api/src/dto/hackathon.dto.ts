@@ -1,13 +1,13 @@
 import { Transform, Type } from "class-transformer";
 import {
-    IsBoolean,
-    IsDate,
-    IsEnum,
-    IsInt,
-    IsNotEmpty,
-    IsOptional,
-    IsString,
-    Min,
+  IsBoolean,
+  IsDate,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
 } from "class-validator";
 import { HackathonTopic } from "../models/enums";
 

@@ -58,11 +58,15 @@ export interface FindMembersParams {
   limit?: number;
 }
 
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 async function request<T>(path: string, token: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', ...init?.headers },
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      ...init?.headers,
+    },
     ...init,
   });
   if (!res.ok) {
@@ -77,29 +81,33 @@ export function getMyTeam(token: string, hackathonId: string): Promise<TeamDto |
 }
 
 export function createTeam(token: string, name: string, hackathonId: string): Promise<TeamDto> {
-  return request<TeamDto>('/teams', token, {
-    method: 'POST',
+  return request<TeamDto>("/teams", token, {
+    method: "POST",
     body: JSON.stringify({ name, hackathonId }),
   });
 }
 
 export function findTeams(token: string, params: FindTeamsParams): Promise<TeamsPage> {
   const url = new URL(`${API_BASE}/teams/recommend`);
-  url.searchParams.set('hackathonId', params.hackathonId);
-  if (params.name) url.searchParams.set('name', params.name);
-  if (params.page) url.searchParams.set('page', String(params.page));
-  if (params.limit) url.searchParams.set('limit', String(params.limit));
-  params.skills?.forEach((s) => url.searchParams.append('skills', s));
-  params.positions?.forEach((p) => url.searchParams.append('positions', p));
+  url.searchParams.set("hackathonId", params.hackathonId);
+  if (params.name) url.searchParams.set("name", params.name);
+  if (params.page) url.searchParams.set("page", String(params.page));
+  if (params.limit) url.searchParams.set("limit", String(params.limit));
+  params.skills?.forEach((s) => url.searchParams.append("skills", s));
+  params.positions?.forEach((p) => url.searchParams.append("positions", p));
   return request<TeamsPage>(url.pathname + url.search, token);
 }
 
-export function findMembers(token: string, teamId: string, params: FindMembersParams = {}): Promise<MembersPage> {
+export function findMembers(
+  token: string,
+  teamId: string,
+  params: FindMembersParams = {},
+): Promise<MembersPage> {
   const url = new URL(`${API_BASE}/teams/${teamId}/recommend-members`);
-  if (params.name) url.searchParams.set('name', params.name);
-  if (params.page) url.searchParams.set('page', String(params.page));
-  if (params.limit) url.searchParams.set('limit', String(params.limit));
-  params.skills?.forEach((s) => url.searchParams.append('skills', s));
-  params.positions?.forEach((p) => url.searchParams.append('positions', p));
+  if (params.name) url.searchParams.set("name", params.name);
+  if (params.page) url.searchParams.set("page", String(params.page));
+  if (params.limit) url.searchParams.set("limit", String(params.limit));
+  params.skills?.forEach((s) => url.searchParams.append("skills", s));
+  params.positions?.forEach((p) => url.searchParams.append("positions", p));
   return request<MembersPage>(url.pathname + url.search, token);
 }

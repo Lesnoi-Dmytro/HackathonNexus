@@ -1,13 +1,13 @@
-import { Calendar, CheckCircle, Clock, Code2, Ticket, Users } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import type { HackathonDto } from '../../api/hackathons';
-import styles from './HackathonCard.module.css';
+import { Calendar, CheckCircle, Clock, Code2, Ticket, Users } from "lucide-react";
+import { Link } from "react-router-dom";
+import type { HackathonDto } from "../../api/hackathons";
+import styles from "./HackathonCard.module.css";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
 }
 
@@ -39,7 +39,7 @@ export function HackathonCard({ hackathon: h }: { hackathon: HackathonDto }) {
             {h.maxParticipants != null && (
               <span className={styles.cardMetaItem}>
                 <Ticket size={13} /> {h.participantCount}/{h.maxParticipants}
-                {h.registrationFull && ' · Full'}
+                {h.registrationFull && " · Full"}
               </span>
             )}
             {h.isRegistered && (

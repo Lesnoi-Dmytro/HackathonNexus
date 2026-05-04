@@ -1,8 +1,8 @@
-import * as LabelPrimitive from '@radix-ui/react-label';
-import * as SelectPrimitive from '@radix-ui/react-select';
-import { clsx } from 'clsx';
-import { type ReactNode } from 'react';
-import styles from './Select.module.css';
+import * as LabelPrimitive from "@radix-ui/react-label";
+import * as SelectPrimitive from "@radix-ui/react-select";
+import { clsx } from "clsx";
+import { type ReactNode } from "react";
+import styles from "./Select.module.css";
 
 /* ── Icons (inline SVG, no extra deps) ── */
 const ChevronDownIcon = () => (
@@ -73,7 +73,7 @@ export interface SelectProps {
   label?: string;
   hint?: string;
   error?: string;
-  selectSize?: 'sm' | 'md' | 'lg';
+  selectSize?: "sm" | "md" | "lg";
 
   /** Portal target — pass `null` to render inline */
   container?: HTMLElement | null;
@@ -89,29 +89,28 @@ function Select({
   value,
   defaultValue,
   onValueChange,
-  placeholder = 'Select…',
+  placeholder = "Select…",
   disabled,
   options,
   groups,
   label,
   hint,
   error,
-  selectSize = 'md',
+  selectSize = "md",
   container,
   className,
   id,
 }: SelectProps) {
-  const selectId = id ?? (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
+  const selectId = id ?? (label ? label.toLowerCase().replace(/\s+/g, "-") : undefined);
 
-  const resolvedGroups: SelectGroup[] =
-    groups ?? (options ? [{ options }] : []);
+  const resolvedGroups: SelectGroup[] = groups ?? (options ? [{ options }] : []);
 
   return (
     <div
       className={clsx(
         styles.wrapper,
-        selectSize === 'sm' && styles.sm,
-        selectSize === 'lg' && styles.lg,
+        selectSize === "sm" && styles.sm,
+        selectSize === "lg" && styles.lg,
         error && styles.error,
         className,
       )}
@@ -120,7 +119,7 @@ function Select({
         <LabelPrimitive.Root
           htmlFor={selectId}
           className={styles.label}
-          data-disabled={disabled ? '' : undefined}
+          data-disabled={disabled ? "" : undefined}
         >
           {label}
         </LabelPrimitive.Root>
@@ -135,30 +134,17 @@ function Select({
         <SelectPrimitive.Trigger
           id={selectId}
           className={styles.trigger}
-          aria-invalid={error ? 'true' : undefined}
-          aria-describedby={
-            error
-              ? `${selectId}-error`
-              : hint
-                ? `${selectId}-hint`
-                : undefined
-          }
+          aria-invalid={error ? "true" : undefined}
+          aria-describedby={error ? `${selectId}-error` : hint ? `${selectId}-hint` : undefined}
         >
-          <SelectPrimitive.Value
-            placeholder={placeholder}
-            className={styles.triggerValue}
-          />
+          <SelectPrimitive.Value placeholder={placeholder} className={styles.triggerValue} />
           <SelectPrimitive.Icon className={styles.chevron} asChild>
             <ChevronDownIcon />
           </SelectPrimitive.Icon>
         </SelectPrimitive.Trigger>
 
         <SelectPrimitive.Portal container={container}>
-          <SelectPrimitive.Content
-            className={styles.content}
-            position="popper"
-            sideOffset={4}
-          >
+          <SelectPrimitive.Content className={styles.content} position="popper" sideOffset={4}>
             <SelectPrimitive.ScrollUpButton className={styles.scrollButton}>
               <ChevronDownIcon />
             </SelectPrimitive.ScrollUpButton>

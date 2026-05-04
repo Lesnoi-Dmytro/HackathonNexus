@@ -12,7 +12,11 @@ import {
   QueryParams,
 } from "routing-controllers";
 import { OpenAPI } from "routing-controllers-openapi";
-import { CreateHackathonDto, ListHackathonsQueryDto, UpdateHackathonDto } from "../dto/hackathon.dto";
+import {
+  CreateHackathonDto,
+  ListHackathonsQueryDto,
+  UpdateHackathonDto,
+} from "../dto/hackathon.dto";
 import { HackathonDto, HackathonsPageDto } from "../dto/response.dto";
 import { User } from "../entities/User";
 import { UserRole } from "../models/enums";

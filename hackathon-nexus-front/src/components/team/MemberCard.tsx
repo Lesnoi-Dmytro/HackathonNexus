@@ -1,7 +1,7 @@
-import { Crown } from 'lucide-react';
-import type { ReactNode } from 'react';
-import type { TeamMemberDto } from '../../api/teams';
-import styles from './MemberCard.module.css';
+import { Crown } from "lucide-react";
+import type { ReactNode } from "react";
+import type { TeamMemberDto } from "../../api/teams";
+import styles from "./MemberCard.module.css";
 
 export function MemberCard({
   member,
@@ -15,7 +15,8 @@ export function MemberCard({
   return (
     <div className={styles.memberCard}>
       <div className={styles.memberAvatar}>
-        {member.firstName[0]}{member.lastName[0]}
+        {member.firstName[0]}
+        {member.lastName[0]}
       </div>
       <div className={styles.memberInfo}>
         <span className={styles.memberName}>
@@ -30,7 +31,9 @@ export function MemberCard({
         {member.skills.length > 0 && (
           <div className={styles.memberSkills}>
             {member.skills.slice(0, 4).map((s) => (
-              <span key={s} className={styles.skillChip}>{s}</span>
+              <span key={s} className={styles.skillChip}>
+                {s}
+              </span>
             ))}
             {member.skills.length > 4 && (
               <span className={styles.skillChip}>+{member.skills.length - 4}</span>

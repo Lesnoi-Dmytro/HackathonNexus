@@ -1,44 +1,58 @@
-import { useEffect, useRef, useState } from 'react';
-import { ALL_TOPICS, listHackathons, type HackathonTopic, type HackathonsPage } from '../api/hackathons';
-import { HackathonCard } from '../components/hackathon/HackathonCard';
-import { useAuth } from '../contexts/AuthContext';
-import { Button } from '../shared/ui/Button';
-import { Input } from '../shared/ui/Input';
-import styles from './HackathonsPage.module.css';
+import { useEffect, useRef, useState } from "react";
+import {
+  ALL_TOPICS,
+  listHackathons,
+  type HackathonTopic,
+  type HackathonsPage,
+} from "../api/hackathons";
+import { HackathonCard } from "../components/hackathon/HackathonCard";
+import { useAuth } from "../contexts/AuthContext";
+import { Button } from "../shared/ui/Button";
+import { Input } from "../shared/ui/Input";
+import styles from "./HackathonsPage.module.css";
 
 const PAGE_SIZE = 12;
 
 export function HackathonsPage() {
   const { token } = useAuth();
 
-  const [result, setResult] = useState<HackathonsPage>({ data: [], total: 0, page: 1, limit: PAGE_SIZE });
+  const [result, setResult] = useState<HackathonsPage>({
+    data: [],
+    total: 0,
+    page: 1,
+    limit: PAGE_SIZE,
+  });
   const [activeTopic, setActiveTopic] = useState<HackathonTopic | undefined>(undefined);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [notStarted, setNotStarted] = useState(false);
   const [notEnded, setNotEnded] = useState(false);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   // Debounce search input
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   useEffect(() => {
     if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
     searchDebounceRef.current = setTimeout(() => {
       setDebouncedSearch(search);
       setPage(1);
     }, 350);
-    return () => { if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current); };
+    return () => {
+      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    };
   }, [search]);
 
   // Reset page on filter change
-  useEffect(() => { setPage(1); }, [activeTopic, notStarted, notEnded]);
+  useEffect(() => {
+    setPage(1);
+  }, [activeTopic, notStarted, notEnded]);
 
   useEffect(() => {
     if (!token) return;
     setIsLoading(true);
-    setError('');
+    setError("");
     listHackathons(token, {
       topic: activeTopic,
       search: debouncedSearch || undefined,
@@ -49,7 +63,7 @@ export function HackathonsPage() {
     })
       .then(setResult)
       .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : 'Failed to load hackathons');
+        setError(err instanceof Error ? err.message : "Failed to load hackathons");
       })
       .finally(() => setIsLoading(false));
   }, [token, activeTopic, debouncedSearch, notStarted, notEnded, page]);
@@ -65,14 +79,14 @@ export function HackathonsPage() {
           {/* Status toggles */}
           <button
             type="button"
-            className={`${styles.toggle} ${notStarted ? styles.toggleActive : ''}`}
+            className={`${styles.toggle} ${notStarted ? styles.toggleActive : ""}`}
             onClick={() => setNotStarted((v) => !v)}
           >
             Upcoming
           </button>
           <button
             type="button"
-            className={`${styles.toggle} ${notEnded ? styles.toggleActive : ''}`}
+            className={`${styles.toggle} ${notEnded ? styles.toggleActive : ""}`}
             onClick={() => setNotEnded((v) => !v)}
           >
             Ongoing
@@ -94,7 +108,7 @@ export function HackathonsPage() {
       <div className={styles.filters}>
         <button
           type="button"
-          className={`${styles.chip} ${activeTopic === undefined ? styles.chipActive : ''}`}
+          className={`${styles.chip} ${activeTopic === undefined ? styles.chipActive : ""}`}
           onClick={() => setActiveTopic(undefined)}
         >
           All
@@ -103,7 +117,7 @@ export function HackathonsPage() {
           <button
             key={topic}
             type="button"
-            className={`${styles.chip} ${activeTopic === topic ? styles.chipActive : ''}`}
+            className={`${styles.chip} ${activeTopic === topic ? styles.chipActive : ""}`}
             onClick={() => setActiveTopic(activeTopic === topic ? undefined : topic)}
           >
             {topic}

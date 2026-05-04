@@ -1,6 +1,6 @@
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
-export type UserRole = 'hackathon-admin' | 'participant';
+export type UserRole = "hackathon-admin" | "participant";
 
 export interface UserDto {
   id: number;
@@ -32,7 +32,7 @@ export interface RegisterPayload {
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...init?.headers },
+    headers: { "Content-Type": "application/json", ...init?.headers },
     ...init,
   });
 
@@ -45,21 +45,21 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export function login(payload: LoginPayload): Promise<AuthResponse> {
-  return request<AuthResponse>('/auth/login', {
-    method: 'POST',
+  return request<AuthResponse>("/auth/login", {
+    method: "POST",
     body: JSON.stringify(payload),
   });
 }
 
 export function register(payload: RegisterPayload): Promise<AuthResponse> {
-  return request<AuthResponse>('/auth/register', {
-    method: 'POST',
+  return request<AuthResponse>("/auth/register", {
+    method: "POST",
     body: JSON.stringify(payload),
   });
 }
 
 export function getMe(token: string): Promise<UserDto> {
-  return request<UserDto>('/auth/me', {
+  return request<UserDto>("/auth/me", {
     headers: { Authorization: `Bearer ${token}` },
   });
 }

@@ -76,7 +76,7 @@
   transition: transform 0.2s ease;
 }
 
-.trigger[data-state='open'] .chevron {
+.trigger[data-state="open"] .chevron {
   transform: rotate(180deg);
 }
 
@@ -97,11 +97,11 @@
   animation-timing-function: ease-out;
 }
 
-.content[data-state='open'][data-side='bottom'] {
+.content[data-state="open"][data-side="bottom"] {
   animation-name: slideDown;
 }
 
-.content[data-state='open'][data-side='top'] {
+.content[data-state="open"][data-side="top"] {
   animation-name: slideUp;
 }
 
@@ -156,7 +156,7 @@
   color: var(--primary);
 }
 
-.item[data-state='checked'] {
+.item[data-state="checked"] {
   color: var(--primary);
   font-weight: 500;
 }

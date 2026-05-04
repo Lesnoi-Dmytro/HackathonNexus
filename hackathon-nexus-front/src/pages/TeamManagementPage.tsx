@@ -1,24 +1,24 @@
-import { ChevronLeft, Search, UserPlus } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { getHackathon, type HackathonDto } from '../api/hackathons';
+import { ChevronLeft, Search, UserPlus } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getHackathon, type HackathonDto } from "../api/hackathons";
 import {
-    createTeam,
-    findMembers,
-    getMyTeam,
-    type MembersPage,
-    type TeamDto,
-    type TeamMemberDto,
-} from '../api/teams';
-import { MemberCard } from '../components/team/MemberCard';
-import { useAuth } from '../contexts/AuthContext';
-import { useNotifications } from '../contexts/NotificationsContext';
-import { getSocket } from '../services/socketService';
-import { Button } from '../shared/ui/Button';
-import { Input } from '../shared/ui/Input';
-import styles from './TeamManagementPage.module.css';
+  createTeam,
+  findMembers,
+  getMyTeam,
+  type MembersPage,
+  type TeamDto,
+  type TeamMemberDto,
+} from "../api/teams";
+import { MemberCard } from "../components/team/MemberCard";
+import { useAuth } from "../contexts/AuthContext";
+import { useNotifications } from "../contexts/NotificationsContext";
+import { getSocket } from "../services/socketService";
+import { Button } from "../shared/ui/Button";
+import { Input } from "../shared/ui/Input";
+import styles from "./TeamManagementPage.module.css";
 
-type TeamTab = 'my-team' | 'create';
+type TeamTab = "my-team" | "create";
 
 export function TeamManagementPage() {
   const { id } = useParams<{ id: string }>();
@@ -30,18 +30,18 @@ export function TeamManagementPage() {
   const [loadingHackathon, setLoadingHackathon] = useState(true);
 
   const [myTeam, setMyTeam] = useState<TeamDto | null | undefined>(undefined);
-  const [activeTab, setActiveTab] = useState<TeamTab>('create');
+  const [activeTab, setActiveTab] = useState<TeamTab>("create");
 
-  const [teamName, setTeamName] = useState('');
+  const [teamName, setTeamName] = useState("");
   const [creatingTeam, setCreatingTeam] = useState(false);
 
   const [membersPage, setMembersPage] = useState<MembersPage | null>(null);
-  const [membersSearch, setMembersSearch] = useState('');
+  const [membersSearch, setMembersSearch] = useState("");
   const [loadingMembers, setLoadingMembers] = useState(false);
   const membersSearchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [debouncedMembersSearch, setDebouncedMembersSearch] = useState('');
+  const [debouncedMembersSearch, setDebouncedMembersSearch] = useState("");
 
-  const isParticipant = user?.role === 'participant';
+  const isParticipant = user?.role === "participant";
 
   useEffect(() => {
     if (!token || !id) return;
@@ -66,7 +66,7 @@ export function TeamManagementPage() {
     getMyTeam(token, id)
       .then((t) => {
         setMyTeam(t);
-        setActiveTab(t ? 'my-team' : 'create');
+        setActiveTab(t ? "my-team" : "create");
       })
       .catch(() => setMyTeam(null));
   }, [token, id, hackathon?.isRegistered, isParticipant]);
@@ -89,7 +89,7 @@ export function TeamManagementPage() {
   }, [token, myTeam, debouncedMembersSearch]);
 
   useEffect(() => {
-    if (activeTab === 'my-team' && myTeam) fetchMembers();
+    if (activeTab === "my-team" && myTeam) fetchMembers();
   }, [activeTab, myTeam, fetchMembers]);
 
   async function handleCreateTeam(e: React.FormEvent) {
@@ -99,10 +99,14 @@ export function TeamManagementPage() {
     try {
       const team = await createTeam(token, teamName.trim(), id);
       setMyTeam(team);
-      setActiveTab('my-team');
-      toast('Team created!', `"${team.name}" is ready`, 'success');
+      setActiveTab("my-team");
+      toast("Team created!", `"${team.name}" is ready`, "success");
     } catch (err) {
-      toast('Failed to create team', err instanceof Error ? err.message : 'Unknown error', 'destructive');
+      toast(
+        "Failed to create team",
+        err instanceof Error ? err.message : "Unknown error",
+        "destructive",
+      );
     } finally {
       setCreatingTeam(false);
     }
@@ -111,10 +115,15 @@ export function TeamManagementPage() {
   function handleInviteMember(member: TeamMemberDto) {
     const socket = getSocket();
     if (!socket || !myTeam) return;
-    socket.emit('team:invite', { teamId: myTeam.id, participantId: member.id }, (err: string | null) => {
-      if (err) toast('Invite failed', err, 'destructive');
-      else toast('Invite sent', `Invite sent to ${member.firstName} ${member.lastName}`, 'success');
-    });
+    socket.emit(
+      "team:invite",
+      { teamId: myTeam.id, participantId: member.id },
+      (err: string | null) => {
+        if (err) toast("Invite failed", err, "destructive");
+        else
+          toast("Invite sent", `Invite sent to ${member.firstName} ${member.lastName}`, "success");
+      },
+    );
   }
 
   if (loadingHackathon || myTeam === undefined) {
@@ -142,8 +151,8 @@ export function TeamManagementPage() {
         {myTeam && (
           <button
             type="button"
-            className={`${styles.tab} ${activeTab === 'my-team' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('my-team')}
+            className={`${styles.tab} ${activeTab === "my-team" ? styles.tabActive : ""}`}
+            onClick={() => setActiveTab("my-team")}
           >
             My Team
           </button>
@@ -151,15 +160,15 @@ export function TeamManagementPage() {
         {!myTeam && (
           <button
             type="button"
-            className={`${styles.tab} ${activeTab === 'create' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('create')}
+            className={`${styles.tab} ${activeTab === "create" ? styles.tabActive : ""}`}
+            onClick={() => setActiveTab("create")}
           >
             Create Team
           </button>
         )}
       </div>
 
-      {activeTab === 'my-team' && myTeam && (
+      {activeTab === "my-team" && myTeam && (
         <div className={styles.myTeam}>
           <div className={styles.myTeamHeader}>
             <span className={styles.myTeamName}>{myTeam.name}</span>
@@ -208,7 +217,7 @@ export function TeamManagementPage() {
         </div>
       )}
 
-      {activeTab === 'create' && !myTeam && (
+      {activeTab === "create" && !myTeam && (
         <>
           <form onSubmit={handleCreateTeam} className={styles.createForm}>
             <p className={styles.createHint}>Give your team a name to get started.</p>
@@ -220,7 +229,7 @@ export function TeamManagementPage() {
                 required
               />
               <Button type="submit" disabled={creatingTeam || !teamName.trim()}>
-                {creatingTeam ? 'Creating…' : 'Create'}
+                {creatingTeam ? "Creating…" : "Create"}
               </Button>
             </div>
           </form>

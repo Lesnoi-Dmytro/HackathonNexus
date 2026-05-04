@@ -1,13 +1,13 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { AppLayout } from './components/AppLayout';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { NotificationsProvider } from './contexts/NotificationsContext';
-import { HackathonDetailPage } from './pages/HackathonDetailPage';
-import { HackathonsPage } from './pages/HackathonsPage';
-import { LoginPage } from './pages/LoginPage';
-import { RegisterPage } from './pages/RegisterPage';
-import { TeamManagementPage } from './pages/TeamManagementPage';
-import { TeamSearchPage } from './pages/TeamSearchPage';
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { AppLayout } from "./components/AppLayout";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { NotificationsProvider } from "./contexts/NotificationsContext";
+import { HackathonDetailPage } from "./pages/HackathonDetailPage";
+import { HackathonsPage } from "./pages/HackathonsPage";
+import { LoginPage } from "./pages/LoginPage";
+import { RegisterPage } from "./pages/RegisterPage";
+import { TeamManagementPage } from "./pages/TeamManagementPage";
+import { TeamSearchPage } from "./pages/TeamSearchPage";
 
 function AppRoutes() {
   const { token } = useAuth();

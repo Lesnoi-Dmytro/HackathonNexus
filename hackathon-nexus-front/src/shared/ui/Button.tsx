@@ -1,7 +1,7 @@
-import { cva, type VariantProps } from 'class-variance-authority';
-import { clsx } from 'clsx';
-import { type ButtonHTMLAttributes, forwardRef } from 'react';
-import styles from './Button.module.css';
+import { cva, type VariantProps } from "class-variance-authority";
+import { clsx } from "clsx";
+import { type ButtonHTMLAttributes, forwardRef } from "react";
+import styles from "./Button.module.css";
 
 const buttonVariants = cva(styles.button, {
   variants: {
@@ -20,28 +20,22 @@ const buttonVariants = cva(styles.button, {
     },
   },
   defaultVariants: {
-    variant: 'default',
-    size: 'md',
+    variant: "default",
+    size: "md",
   },
 });
 
 export interface ButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {}
+  extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {}
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, ...props }, ref) => {
     return (
-      <button
-        ref={ref}
-        className={clsx(buttonVariants({ variant, size }), className)}
-        {...props}
-      />
+      <button ref={ref} className={clsx(buttonVariants({ variant, size }), className)} {...props} />
     );
   },
 );
 
-Button.displayName = 'Button';
+Button.displayName = "Button";
 
 export { Button, buttonVariants };
-

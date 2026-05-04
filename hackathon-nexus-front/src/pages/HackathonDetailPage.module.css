@@ -19,7 +19,9 @@
   align-items: center;
   gap: 0.3rem;
 }
-.backBtn:hover { color: var(--color-text, #fff); }
+.backBtn:hover {
+  color: var(--color-text, #fff);
+}
 
 /* ── State screens ── */
 .state {
@@ -31,7 +33,9 @@
   padding: 6rem 1rem;
   color: var(--color-muted, #888);
 }
-.stateError { color: #f87171; }
+.stateError {
+  color: #f87171;
+}
 .stateSmall {
   color: var(--color-muted, #888);
   font-size: 0.85rem;
@@ -48,7 +52,9 @@
 }
 
 @media (max-width: 640px) {
-  .hero { grid-template-columns: 1fr; }
+  .hero {
+    grid-template-columns: 1fr;
+  }
 }
 
 .heroImage {
@@ -116,9 +122,21 @@
   padding: 0.6rem 0.9rem;
 }
 
-.metaIcon { font-size: 1.1rem; }
-.metaLabel { font-size: 0.7rem; color: var(--color-muted, #888); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
-.metaValue { font-size: 0.875rem; font-weight: 600; color: var(--color-text, #fff); }
+.metaIcon {
+  font-size: 1.1rem;
+}
+.metaLabel {
+  font-size: 0.7rem;
+  color: var(--color-muted, #888);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.metaValue {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text, #fff);
+}
 
 /* ── Status banner ── */
 .banner {
@@ -137,7 +155,11 @@
   align-items: center;
   gap: 0.4rem;
 }
-.bannerEnded   { background: var(--color-surface, #1a1a1a); border-color: var(--color-border, #2a2a2a); color: var(--color-muted, #888); }
+.bannerEnded {
+  background: var(--color-surface, #1a1a1a);
+  border-color: var(--color-border, #2a2a2a);
+  color: var(--color-muted, #888);
+}
 
 /* ── Registration box ── */
 .registrationBox {
@@ -161,9 +183,9 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  background: rgba(166,227,161,0.12);
+  background: rgba(166, 227, 161, 0.12);
   color: #a6e3a1;
-  border: 1px solid rgba(166,227,161,0.3);
+  border: 1px solid rgba(166, 227, 161, 0.3);
   border-radius: 999px;
   padding: 0.3rem 0.9rem;
   font-size: 0.85rem;
@@ -173,9 +195,9 @@
 .fullBadge {
   display: inline-flex;
   align-items: center;
-  background: rgba(243,139,168,0.12);
+  background: rgba(243, 139, 168, 0.12);
   color: #f38ba8;
-  border: 1px solid rgba(243,139,168,0.3);
+  border: 1px solid rgba(243, 139, 168, 0.3);
   border-radius: 999px;
   padding: 0.3rem 0.9rem;
   font-size: 0.85rem;
@@ -211,4 +233,3 @@
   color: var(--color-muted, #888);
   margin: 0;
 }
-

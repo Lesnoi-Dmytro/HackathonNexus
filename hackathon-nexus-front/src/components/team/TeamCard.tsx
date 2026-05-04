@@ -1,7 +1,7 @@
-import type { TeamDto } from '../../api/teams';
-import { Button } from '../../shared/ui/Button';
-import { MemberCard } from './MemberCard';
-import styles from './TeamCard.module.css';
+import type { TeamDto } from "../../api/teams";
+import { Button } from "../../shared/ui/Button";
+import { MemberCard } from "./MemberCard";
+import styles from "./TeamCard.module.css";
 
 export function TeamCard({
   team,
@@ -17,7 +17,7 @@ export function TeamCard({
     <div className={styles.teamCard}>
       <div className={styles.teamCardHeader}>
         <span className={styles.teamCardName}>{team.name}</span>
-        <span className={`${styles.teamCardSize} ${isFull ? styles.teamCardFull : ''}`}>
+        <span className={`${styles.teamCardSize} ${isFull ? styles.teamCardFull : ""}`}>
           {team.members.length} / {maxTeamSize}
         </span>
       </div>
