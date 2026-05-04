@@ -1,5 +1,6 @@
+import { MessageSquare } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import type { NotificationDto } from "../api/notifications";
 import { notificationText } from "../api/notifications.types";
 import { useAuth } from "../contexts/AuthContext";
@@ -57,6 +58,18 @@ export function AppLayout() {
         <Link to="/hackathons" className={styles.brand}>
           Hackathon Nexus
         </Link>
+
+        <nav className={styles.nav}>
+          <NavLink
+            to="/chat"
+            className={({ isActive }) =>
+              `${styles.navLink} ${isActive ? styles.navLinkActive : ""}`
+            }
+          >
+            <MessageSquare size={16} />
+            Messages
+          </NavLink>
+        </nav>
 
         <div className={styles.right}>
           {/* Notification bell */}

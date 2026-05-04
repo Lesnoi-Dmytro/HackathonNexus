@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { Server } from "socket.io";
 import { AppDataSource } from "../data-source";
+import { ChatRoom } from "../entities/ChatRoom";
 import { Participant } from "../entities/Participant";
 import { User } from "../entities/User";
 import { UserRole } from "../models/enums";
@@ -64,11 +65,21 @@ export function createSocketServer(
     // Each user has a personal room for targeted notifications
     socket.join(`user:${user.id}`);
 
+    // Rejoin all chat rooms the user belongs to
+    void AppDataSource.getRepository(ChatRoom)
+      .createQueryBuilder("room")
+      .innerJoin("room.members", "member")
+      .select(["room.id"])
+      .where("member.id = :userId", { userId: user.id })
+      .getMany()
+      .then((rooms) => rooms.forEach((r) => socket.join(`chat:${r.id}`)));
+
     if (process.env.NODE_ENV !== "production") {
       console.log(`[WS] connected: ${user.email} (${user.role})`);
     }
 
     registerTeamHandlers(io, socket);
+    registerChatHandlers(io, socket);
 
     socket.on("disconnect", () => {
       if (process.env.NODE_ENV !== "production") {
@@ -81,4 +92,5 @@ export function createSocketServer(
 }
 
 // Import here to avoid circular reference issues
+import { registerChatHandlers } from "./handlers/chatHandler";
 import { registerTeamHandlers } from "./handlers/teamHandler";

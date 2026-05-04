@@ -1,14 +1,15 @@
-import { ChevronLeft, Search, UserPlus } from "lucide-react";
+import { ChevronLeft, MessageSquare, Search, UserPlus } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { getOrCreateTeamRoom } from "../api/chat";
 import { getHackathon, type HackathonDto } from "../api/hackathons";
 import {
-  createTeam,
-  findMembers,
-  getMyTeam,
-  type MembersPage,
-  type TeamDto,
-  type TeamMemberDto,
+    createTeam,
+    findMembers,
+    getMyTeam,
+    type MembersPage,
+    type TeamDto,
+    type TeamMemberDto,
 } from "../api/teams";
 import { MemberCard } from "../components/team/MemberCard";
 import { useAuth } from "../contexts/AuthContext";
@@ -91,6 +92,20 @@ export function TeamManagementPage() {
   useEffect(() => {
     if (activeTab === "my-team" && myTeam) fetchMembers();
   }, [activeTab, myTeam, fetchMembers]);
+
+  async function handleOpenTeamChat() {
+    if (!token || !myTeam) return;
+    try {
+      const room = await getOrCreateTeamRoom(token, myTeam.id);
+      navigate(`/chat?room=${room.id}`);
+    } catch (err) {
+      toast(
+        "Error",
+        err instanceof Error ? err.message : "Could not open team chat",
+        "destructive",
+      );
+    }
+  }
 
   async function handleCreateTeam(e: React.FormEvent) {
     e.preventDefault();
@@ -175,6 +190,9 @@ export function TeamManagementPage() {
             <span className={styles.myTeamSize}>
               {myTeam.members.length} / {hackathon.maxTeamSize} members
             </span>
+            <Button variant="outline" size="sm" onClick={handleOpenTeamChat}>
+              <MessageSquare size={14} /> Team Chat
+            </Button>
           </div>
           <div className={styles.memberList}>
             {myTeam.members.map((m) => (

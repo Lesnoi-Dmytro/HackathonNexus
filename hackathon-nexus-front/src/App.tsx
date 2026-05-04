@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AppLayout } from "./components/AppLayout";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { NotificationsProvider } from "./contexts/NotificationsContext";
+import { ChatPage } from "./pages/ChatPage";
 import { HackathonDetailPage } from "./pages/HackathonDetailPage";
 import { HackathonsPage } from "./pages/HackathonsPage";
 import { LoginPage } from "./pages/LoginPage";
@@ -22,6 +23,7 @@ function AppRoutes() {
             <Route path="/hackathons/:id" element={<HackathonDetailPage />} />
             <Route path="/hackathons/:id/team" element={<TeamManagementPage />} />
             <Route path="/hackathons/:id/team/search" element={<TeamSearchPage />} />
+            <Route path="/chat" element={<ChatPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/hackathons" replace />} />
         </Routes>

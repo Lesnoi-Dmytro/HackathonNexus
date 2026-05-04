@@ -1,8 +1,10 @@
 import { io, Socket } from "socket.io-client";
+import type { MessageDto } from "../api/chat";
 import type { AppNotification } from "../api/notifications.types";
 
 export interface ServerToClientEvents {
   notification: (payload: AppNotification) => void;
+  "chat:message": (payload: MessageDto) => void;
 }
 
 export interface ClientToServerEvents {
@@ -17,6 +19,10 @@ export interface ClientToServerEvents {
   ) => void;
   "team:invite:respond": (
     payload: { requestId: string; accept: boolean },
+    ack: (err: string | null) => void,
+  ) => void;
+  "chat:send": (
+    payload: { roomId: string; content: string },
     ack: (err: string | null) => void,
   ) => void;
 }

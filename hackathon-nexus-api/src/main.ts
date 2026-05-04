@@ -8,6 +8,7 @@ import { createServer } from "http";
 import { RoutingControllersOptions, useExpressServer } from "routing-controllers";
 import swaggerUi from "swagger-ui-express";
 import { AuthController } from "./controllers/AuthController";
+import { ChatController } from "./controllers/ChatController";
 import { HackathonController } from "./controllers/HackathonController";
 import { NotificationController } from "./controllers/NotificationController";
 import { TeamController } from "./controllers/TeamController";
@@ -18,7 +19,13 @@ import { generateSwaggerSpec } from "./swagger";
 
 const routingControllersOptions: RoutingControllersOptions = {
   routePrefix: "/api",
-  controllers: [AuthController, HackathonController, TeamController, NotificationController],
+  controllers: [
+    AuthController,
+    HackathonController,
+    TeamController,
+    NotificationController,
+    ChatController,
+  ],
   authorizationChecker,
   currentUserChecker,
   validation: true,

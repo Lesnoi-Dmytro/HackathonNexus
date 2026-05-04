@@ -3,6 +3,11 @@ export enum UserRole {
   PARTICIPANT = "participant",
 }
 
+export enum ChatRoomType {
+  TEAM = "team",
+  DIRECT = "direct",
+}
+
 export enum Skill {
   // Languages
   PYTHON = "Python",

@@ -7,6 +7,7 @@ import { CreateNotificationsTable1777766900000 } from "./1777766900000-CreateNot
 import { AddYearsOfExperienceToParticipants1777767000000 } from "./1777767000000-AddYearsOfExperienceToParticipants";
 import { AddHackathonRegistrations1777767100000 } from "./1777767100000-AddHackathonRegistrations";
 import { SeedData1777767200000 } from "./1777767200000-SeedData";
+import { CreateMessagesTable1777767300000 } from "./1777767300000-CreateMessagesTable";
 
 export const typeormMigrations = [
   CreateUsersTable1777766400000,
@@ -18,4 +19,5 @@ export const typeormMigrations = [
   AddYearsOfExperienceToParticipants1777767000000,
   AddHackathonRegistrations1777767100000,
   SeedData1777767200000,
+  CreateMessagesTable1777767300000,
 ];
