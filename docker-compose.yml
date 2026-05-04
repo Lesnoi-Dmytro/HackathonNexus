@@ -44,6 +44,16 @@ services:
       redis:
         condition: service_healthy
 
+  hackathon-nexus-front:
+    build:
+      context: ./hackathon-nexus-front
+      args:
+        VITE_API_URL: "http://localhost:3000"
+    ports:
+      - "${FRONT_PORT:-5173}:80"
+    depends_on:
+      - hackathon-nexus-api
+
   recommendation-api:
     build: ./recommendation-api
     ports:

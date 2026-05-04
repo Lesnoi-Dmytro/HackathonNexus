@@ -1,8 +1,12 @@
+import { validationMetadatasToSchemas } from "class-validator-jsonschema";
 import { getMetadataArgsStorage, RoutingControllersOptions } from "routing-controllers";
 import { routingControllersToSpec } from "routing-controllers-openapi";
 
 export function generateSwaggerSpec(options: RoutingControllersOptions) {
   const storage = getMetadataArgsStorage();
+  const schemas = validationMetadatasToSchemas({
+    refPointerPrefix: "#/components/schemas/",
+  });
 
   return routingControllersToSpec(storage, options, {
     info: {
@@ -12,6 +16,7 @@ export function generateSwaggerSpec(options: RoutingControllersOptions) {
     },
     components: {
       schemas: {
+        ...schemas,
         RegisterDto: {
           type: "object",
           required: ["firstName", "lastName", "email", "password"],

@@ -1,6 +1,50 @@
-import { Type } from "class-transformer";
-import { IsDate, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min } from "class-validator";
+import { Transform, Type } from "class-transformer";
+import {
+    IsBoolean,
+    IsDate,
+    IsEnum,
+    IsInt,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
+    Min,
+} from "class-validator";
 import { HackathonTopic } from "../models/enums";
+
+export class ListHackathonsQueryDto {
+  @IsOptional()
+  @IsEnum(HackathonTopic)
+  topic?: HackathonTopic;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  search?: string;
+
+  /** When true, exclude hackathons that have already started */
+  @IsOptional()
+  @Transform(({ value }) => value === "true" || value === true)
+  @IsBoolean()
+  notStarted?: boolean;
+
+  /** When true, exclude hackathons that have already ended */
+  @IsOptional()
+  @Transform(({ value }) => value === "true" || value === true)
+  @IsBoolean()
+  notEnded?: boolean;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  limit?: number;
+}
 
 export class CreateHackathonDto {
   @IsString()

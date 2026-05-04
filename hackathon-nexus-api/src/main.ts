@@ -2,6 +2,7 @@ import * as dotenv from "dotenv";
 import "reflect-metadata";
 dotenv.config();
 
+import cors from "cors";
 import express from "express";
 import { createServer } from "http";
 import { RoutingControllersOptions, useExpressServer } from "routing-controllers";
@@ -31,6 +32,17 @@ async function bootstrap(): Promise<void> {
 
   const app = express();
   const httpServer = createServer(app);
+
+  const allowedOrigins = (process.env.CORS_ORIGIN ?? 'http://localhost:5173')
+    .split(',')
+    .map((o) => o.trim());
+
+  app.use(
+    cors({
+      origin: allowedOrigins,
+      credentials: true,
+    }),
+  );
 
   useExpressServer(app, routingControllersOptions);
 

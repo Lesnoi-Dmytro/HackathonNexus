@@ -1,20 +1,20 @@
 import {
-    Authorized,
-    Body,
-    CurrentUser,
-    Get,
-    HttpCode,
-    JsonController,
-    Param,
-    Patch,
-    Post,
-    QueryParam,
+  Authorized,
+  Body,
+  CurrentUser,
+  Get,
+  HttpCode,
+  JsonController,
+  Param,
+  Patch,
+  Post,
+  QueryParams,
 } from "routing-controllers";
 import { OpenAPI } from "routing-controllers-openapi";
-import { CreateHackathonDto, UpdateHackathonDto } from "../dto/hackathon.dto";
-import { HackathonDto } from "../dto/response.dto";
+import { CreateHackathonDto, ListHackathonsQueryDto, UpdateHackathonDto } from "../dto/hackathon.dto";
+import { HackathonDto, HackathonsPageDto } from "../dto/response.dto";
 import { User } from "../entities/User";
-import { HackathonTopic, UserRole } from "../models/enums";
+import { UserRole } from "../models/enums";
 import { HackathonService } from "../services/HackathonService";
 
 @JsonController("/hackathons")
@@ -24,30 +24,20 @@ export class HackathonController {
   @Get("/")
   @Authorized()
   @OpenAPI({
-    summary: "List all hackathons, optionally filtered by topic",
+    summary: "List hackathons with optional filters and pagination",
     security: [{ bearerAuth: [] }],
-    parameters: [
-      {
-        in: "query",
-        name: "topic",
-        required: false,
-        schema: { type: "string", enum: Object.values(HackathonTopic) },
-      },
-    ],
     responses: {
       "200": {
-        description: "List of hackathons",
+        description: "Paginated list of hackathons",
         content: {
-          "application/json": {
-            schema: { type: "array", items: { $ref: "#/components/schemas/HackathonDto" } },
-          },
+          "application/json": { schema: { $ref: "#/components/schemas/HackathonsPageDto" } },
         },
       },
       "401": { description: "Unauthorized" },
     },
   })
-  async list(@QueryParam("topic") topic?: HackathonTopic): Promise<HackathonDto[]> {
-    return this.hackathonService.list(topic);
+  async list(@QueryParams() query: ListHackathonsQueryDto): Promise<HackathonsPageDto> {
+    return this.hackathonService.list(query);
   }
 
   @Post("/")

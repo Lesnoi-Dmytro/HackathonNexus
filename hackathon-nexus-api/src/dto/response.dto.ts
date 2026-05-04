@@ -41,6 +41,13 @@ export class HackathonDto {
   updatedAt!: Date;
 }
 
+export class HackathonsPageDto {
+  data!: HackathonDto[];
+  total!: number;
+  page!: number;
+  limit!: number;
+}
+
 export class TeamMemberDto {
   id!: string;
   firstName!: string;

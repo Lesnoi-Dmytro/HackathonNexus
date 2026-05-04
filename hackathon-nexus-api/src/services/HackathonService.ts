@@ -1,9 +1,8 @@
 import { AppDataSource } from "../data-source";
-import { CreateHackathonDto, UpdateHackathonDto } from "../dto/hackathon.dto";
-import { HackathonDto } from "../dto/response.dto";
+import { CreateHackathonDto, ListHackathonsQueryDto, UpdateHackathonDto } from "../dto/hackathon.dto";
+import { HackathonDto, HackathonsPageDto } from "../dto/response.dto";
 import { Hackathon } from "../entities/Hackathon";
 import { User } from "../entities/User";
-import { HackathonTopic } from "../models/enums";
 
 function toHackathonDto(h: Hackathon): HackathonDto {
   const dto = new HackathonDto();
@@ -24,18 +23,42 @@ function toHackathonDto(h: Hackathon): HackathonDto {
 export class HackathonService {
   private readonly repo = AppDataSource.getRepository(Hackathon);
 
-  async list(topic?: HackathonTopic): Promise<HackathonDto[]> {
+  async list(query: ListHackathonsQueryDto): Promise<HackathonsPageDto> {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 12;
+    const now = new Date();
+
     const qb = this.repo
       .createQueryBuilder("hackathon")
       .leftJoinAndSelect("hackathon.createdBy", "createdBy")
       .orderBy("hackathon.startDate", "ASC");
 
-    if (topic) {
-      qb.where("hackathon.topic = :topic", { topic });
+    if (query.topic) {
+      qb.andWhere("hackathon.topic = :topic", { topic: query.topic });
     }
 
-    const hackathons = await qb.getMany();
-    return hackathons.map(toHackathonDto);
+    if (query.search) {
+      qb.andWhere("hackathon.title ILIKE :search", { search: `%${query.search}%` });
+    }
+
+    if (query.notStarted) {
+      qb.andWhere("hackathon.startDate > :now", { now });
+    }
+
+    if (query.notEnded) {
+      // ended = startDate + durationHours has passed
+      qb.andWhere(
+        "hackathon.startDate + (hackathon.durationHours * interval '1 hour') > :now",
+        { now },
+      );
+    }
+
+    const [rows, total] = await qb
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return { data: rows.map(toHackathonDto), total, page, limit };
   }
 
   async create(dto: CreateHackathonDto, admin: User): Promise<HackathonDto> {
