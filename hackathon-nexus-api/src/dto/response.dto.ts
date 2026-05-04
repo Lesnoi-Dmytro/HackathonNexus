@@ -36,6 +36,10 @@ export class HackathonDto {
   startDate!: Date;
   durationHours!: number;
   maxTeamSize!: number;
+  maxParticipants?: number;
+  participantCount!: number;
+  registrationFull!: boolean;
+  isRegistered!: boolean;
   imageUrl?: string;
   createdAt!: Date;
   updatedAt!: Date;

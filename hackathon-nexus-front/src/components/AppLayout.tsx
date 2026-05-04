@@ -1,12 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
-import {
-    getNotifications,
-    markNotificationRead,
-    type NotificationDto,
-} from '../api/notifications';
+import type { NotificationDto } from '../api/notifications';
 import { notificationText } from '../api/notifications.types';
 import { useAuth } from '../contexts/AuthContext';
+import { useNotifications } from '../contexts/NotificationsContext';
 import { Button } from '../shared/ui/Button';
 import styles from './AppLayout.module.css';
 
@@ -20,32 +17,13 @@ function timeAgo(iso: string): string {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
-const POLL_INTERVAL = 30_000; // 30 s
-
 export function AppLayout() {
-  const { user, token, logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { notifications, unreadCount, markRead, markAllRead } = useNotifications();
 
-  // Notifications state
-  const [notifications, setNotifications] = useState<NotificationDto[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const bellRef = useRef<HTMLDivElement>(null);
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
-
-  const fetchNotifications = useCallback(() => {
-    if (!token) return;
-    getNotifications(token, { limit: 50 })
-      .then((page) => setNotifications(page.data))
-      .catch(() => {/* silently ignore polling errors */});
-  }, [token]);
-
-  // Initial fetch + polling
-  useEffect(() => {
-    fetchNotifications();
-    const id = setInterval(fetchNotifications, POLL_INTERVAL);
-    return () => clearInterval(id);
-  }, [fetchNotifications]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -59,20 +37,8 @@ export function AppLayout() {
   }, []);
 
   async function handleNotificationClick(n: NotificationDto) {
-    if (!token || n.read) return;
-    try {
-      const updated = await markNotificationRead(token, n.id);
-      setNotifications((prev) => prev.map((x) => (x.id === updated.id ? updated : x)));
-    } catch {
-      // ignore
-    }
-  }
-
-  async function markAllRead() {
-    if (!token) return;
-    const unread = notifications.filter((n) => !n.read);
-    await Promise.allSettled(unread.map((n) => markNotificationRead(token, n.id)));
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    if (n.read) return;
+    await markRead(n.id);
   }
 
   function handleLogout() {

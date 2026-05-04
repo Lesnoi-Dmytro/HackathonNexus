@@ -69,6 +69,11 @@ export class CreateHackathonDto {
   @IsInt()
   @Min(1)
   maxTeamSize!: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  maxParticipants?: number;
 }
 
 export class UpdateHackathonDto {
@@ -95,4 +100,9 @@ export class UpdateHackathonDto {
   @IsInt()
   @Min(1)
   durationHours?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  maxParticipants?: number;
 }

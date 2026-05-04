@@ -7,6 +7,7 @@ import {
   JsonController,
   Param,
   Post,
+  QueryParam,
   QueryParams,
 } from "routing-controllers";
 import { OpenAPI } from "routing-controllers-openapi";
@@ -80,6 +81,21 @@ export class TeamController {
     @CurrentUser({ required: true }) user: User,
   ): Promise<TeamDto> {
     return this.teamService.join(id, user);
+  }
+
+  @Get("/my")
+  @OpenAPI({
+    summary: "Get the current participant's team for a hackathon (null if none)",
+    security: [{ bearerAuth: [] }],
+    responses: {
+      "200": { description: "Team or null" },
+    },
+  })
+  async getMyTeam(
+    @QueryParam("hackathonId", { required: true }) hackathonId: string,
+    @CurrentUser({ required: true }) user: User,
+  ): Promise<TeamDto | null> {
+    return this.teamService.getMyTeam(hackathonId, user);
   }
 
   @Get("/recommend")

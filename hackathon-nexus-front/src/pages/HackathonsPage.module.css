@@ -96,6 +96,13 @@
   gap: 1.25rem;
 }
 
+/* ── Card link wrapper ── */
+.cardLink {
+  display: contents;
+  text-decoration: none;
+  color: inherit;
+}
+
 /* ── Card ── */
 .card {
   background: var(--color-surface, #1a1a1a);
@@ -176,6 +183,13 @@
   display: flex;
   align-items: center;
   gap: 0.3rem;
+}
+
+.cardRegistered {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #a6e3a1;
+  margin-left: auto;
 }
 
 /* ── States ── */

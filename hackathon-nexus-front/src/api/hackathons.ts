@@ -32,6 +32,10 @@ export interface HackathonDto {
   startDate: string;
   durationHours: number;
   maxTeamSize: number;
+  maxParticipants?: number;
+  participantCount: number;
+  registrationFull: boolean;
+  isRegistered: boolean;
   imageUrl?: string;
   createdAt: string;
   updatedAt: string;
@@ -55,6 +59,19 @@ export interface ListHackathonsParams {
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
+async function request<T>(path: string, token: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', ...init?.headers },
+    ...init,
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { message?: string }).message ?? `Request failed: ${res.status}`);
+  }
+  if (res.status === 204) return undefined as T;
+  return res.json() as Promise<T>;
+}
+
 export async function listHackathons(
   token: string,
   params: ListHackathonsParams = {},
@@ -67,14 +84,17 @@ export async function listHackathons(
   if (params.page) url.searchParams.set('page', String(params.page));
   if (params.limit) url.searchParams.set('limit', String(params.limit));
 
-  const res = await fetch(url.toString(), {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  return request<HackathonsPage>(url.pathname + url.search, token);
+}
 
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error((body as { message?: string }).message ?? `Request failed: ${res.status}`);
-  }
+export function getHackathon(token: string, id: string): Promise<HackathonDto> {
+  return request<HackathonDto>(`/hackathons/${id}`, token);
+}
 
-  return res.json() as Promise<HackathonsPage>;
+export function registerForHackathon(token: string, id: string): Promise<HackathonDto> {
+  return request<HackathonDto>(`/hackathons/${id}/register`, token, { method: 'POST' });
+}
+
+export function unregisterFromHackathon(token: string, id: string): Promise<void> {
+  return request<void>(`/hackathons/${id}/register`, token, { method: 'DELETE' });
 }

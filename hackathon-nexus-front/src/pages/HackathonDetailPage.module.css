@@ -1,0 +1,214 @@
+.page {
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  color: var(--color-text, #fff);
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-muted, #888);
+  font-size: 0.85rem;
+  padding: 0;
+  margin-bottom: 1.5rem;
+  transition: color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.backBtn:hover { color: var(--color-text, #fff); }
+
+/* ── State screens ── */
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 6rem 1rem;
+  color: var(--color-muted, #888);
+}
+.stateError { color: #f87171; }
+.stateSmall {
+  color: var(--color-muted, #888);
+  font-size: 0.85rem;
+  padding: 1rem 0;
+}
+
+/* ── Hero ── */
+.hero {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 640px) {
+  .hero { grid-template-columns: 1fr; }
+}
+
+.heroImage {
+  width: 100%;
+  border-radius: 10px;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  background: #2a2a2a;
+}
+
+.heroImagePlaceholder {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1f1f1f 0%, #2a2a2a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-muted, #888);
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.topic {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primary, #646cff);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.description {
+  font-size: 0.9rem;
+  color: var(--color-muted, #888);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── Meta cards ── */
+.metaGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+}
+
+.metaCard {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--color-surface, #1a1a1a);
+  border: 1px solid var(--color-border, #2a2a2a);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+}
+
+.metaIcon { font-size: 1.1rem; }
+.metaLabel { font-size: 0.7rem; color: var(--color-muted, #888); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+.metaValue { font-size: 0.875rem; font-weight: 600; color: var(--color-text, #fff); }
+
+/* ── Status banner ── */
+.banner {
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  border: 1px solid transparent;
+}
+.bannerOngoing {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.bannerEnded   { background: var(--color-surface, #1a1a1a); border-color: var(--color-border, #2a2a2a); color: var(--color-muted, #888); }
+
+/* ── Registration box ── */
+.registrationBox {
+  background: var(--color-surface, #1a1a1a);
+  border: 1px solid var(--color-border, #2a2a2a);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.registeredRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.registeredBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(166,227,161,0.12);
+  color: #a6e3a1;
+  border: 1px solid rgba(166,227,161,0.3);
+  border-radius: 999px;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.fullBadge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(243,139,168,0.12);
+  color: #f38ba8;
+  border: 1px solid rgba(243,139,168,0.3);
+  border-radius: 999px;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* ── Team box ── */
+.teamBox {
+  background: var(--color-surface, #1a1a1a);
+  border: 1px solid var(--color-border, #2a2a2a);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.teamBoxInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.teamBoxTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.teamBoxDesc {
+  font-size: 0.85rem;
+  color: var(--color-muted, #888);
+  margin: 0;
+}
+

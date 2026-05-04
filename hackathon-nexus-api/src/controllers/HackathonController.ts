@@ -2,6 +2,7 @@ import {
   Authorized,
   Body,
   CurrentUser,
+  Delete,
   Get,
   HttpCode,
   JsonController,
@@ -36,8 +37,74 @@ export class HackathonController {
       "401": { description: "Unauthorized" },
     },
   })
-  async list(@QueryParams() query: ListHackathonsQueryDto): Promise<HackathonsPageDto> {
-    return this.hackathonService.list(query);
+  async list(
+    @QueryParams() query: ListHackathonsQueryDto,
+    @CurrentUser({ required: true }) user: User,
+  ): Promise<HackathonsPageDto> {
+    return this.hackathonService.list(query, user);
+  }
+
+  @Get("/:id")
+  @Authorized()
+  @OpenAPI({
+    summary: "Get a single hackathon by ID",
+    security: [{ bearerAuth: [] }],
+    responses: {
+      "200": {
+        description: "Hackathon detail",
+        content: {
+          "application/json": { schema: { $ref: "#/components/schemas/HackathonDto" } },
+        },
+      },
+      "401": { description: "Unauthorized" },
+      "404": { description: "Hackathon not found" },
+    },
+  })
+  async getOne(
+    @Param("id") id: string,
+    @CurrentUser({ required: true }) user: User,
+  ): Promise<HackathonDto> {
+    return this.hackathonService.getOne(id, user);
+  }
+
+  @Post("/:id/register")
+  @Authorized()
+  @HttpCode(200)
+  @OpenAPI({
+    summary: "Register current participant for a hackathon",
+    security: [{ bearerAuth: [] }],
+    responses: {
+      "200": { description: "Registered — returns updated hackathon" },
+      "401": { description: "Unauthorized" },
+      "403": { description: "Not a participant" },
+      "404": { description: "Hackathon not found" },
+      "409": { description: "Already registered or registration full" },
+    },
+  })
+  async register(
+    @Param("id") id: string,
+    @CurrentUser({ required: true }) user: User,
+  ): Promise<HackathonDto> {
+    return this.hackathonService.register(id, user);
+  }
+
+  @Delete("/:id/register")
+  @Authorized()
+  @HttpCode(204)
+  @OpenAPI({
+    summary: "Unregister current participant from a hackathon",
+    security: [{ bearerAuth: [] }],
+    responses: {
+      "204": { description: "Unregistered" },
+      "401": { description: "Unauthorized" },
+      "403": { description: "Not a participant" },
+    },
+  })
+  async unregister(
+    @Param("id") id: string,
+    @CurrentUser({ required: true }) user: User,
+  ): Promise<void> {
+    return this.hackathonService.unregister(id, user);
   }
 
   @Post("/")

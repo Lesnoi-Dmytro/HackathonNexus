@@ -2,10 +2,10 @@ import { In } from "typeorm";
 import { fetchRecommendations } from "../clients/RecommendClient";
 import { AppDataSource } from "../data-source";
 import {
-  MembersRecommendResponseDto,
-  TeamDto,
-  TeamMemberDto,
-  TeamsRecommendResponseDto,
+    MembersRecommendResponseDto,
+    TeamDto,
+    TeamMemberDto,
+    TeamsRecommendResponseDto,
 } from "../dto/response.dto";
 import { CreateTeamDto, FindMembersQueryDto, FindTeamsQueryDto } from "../dto/team.dto";
 import { Hackathon } from "../entities/Hackathon";
@@ -49,6 +49,33 @@ export class TeamService {
       throw err;
     }
     return participant;
+  }
+
+  async getMyTeam(hackathonId: string, user: User): Promise<TeamDto | null> {
+    const participant = await this.participantRepo.findOne({ where: { user: { id: user.id } } });
+    if (!participant) return null;
+
+    const team = await this.teamRepo
+      .createQueryBuilder("team")
+      .leftJoinAndSelect("team.hackathon", "hackathon")
+      .leftJoinAndSelect("team.leader", "leader")
+      .leftJoinAndSelect("leader.user", "leaderUser")
+      .leftJoinAndSelect("team.members", "member")
+      .leftJoinAndSelect("member.user", "memberUser")
+      .where("team.hackathonId = :hackathonId", { hackathonId })
+      .andWhere((qb) => {
+        const sub = qb
+          .subQuery()
+          .select("1")
+          .from("team_members", "tm")
+          .where("tm.teamId = team.id")
+          .andWhere("tm.participantId = :pid", { pid: participant.id })
+          .getQuery();
+        return `EXISTS ${sub}`;
+      })
+      .getOne();
+
+    return team ? toTeamDto(team) : null;
   }
 
   async create(dto: CreateTeamDto, user: User): Promise<TeamDto> {

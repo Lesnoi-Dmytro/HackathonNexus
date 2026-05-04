@@ -1,12 +1,15 @@
 import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinTable,
+    ManyToMany,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
 } from "typeorm";
 import { HackathonTopic } from "../models/enums";
+import { Participant } from "./Participant";
 import { User } from "./User";
 
 @Entity("hackathons")
@@ -34,6 +37,17 @@ export class Hackathon {
 
   @Column({ type: "int" })
   maxTeamSize!: number;
+
+  @Column({ type: "int", nullable: true })
+  maxParticipants?: number;
+
+  @ManyToMany(() => Participant, { eager: false })
+  @JoinTable({
+    name: "hackathon_registrations",
+    joinColumn: { name: "hackathonId", referencedColumnName: "id" },
+    inverseJoinColumn: { name: "participantId", referencedColumnName: "id" },
+  })
+  registrants!: Participant[];
 
   @Column({ type: "text", nullable: true })
   imageUrl?: string;
