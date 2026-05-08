@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useTranslation } from "react-i18next";
 import { getNotifications, markNotificationRead, type NotificationDto } from "../api/notifications";
 import { notificationText, type AppNotification } from "../api/notifications.types";
 import { connectSocket, disconnectSocket } from "../services/socketService";
@@ -54,24 +55,28 @@ interface Props {
   children: ReactNode;
 }
 
-function toastForNotification(payload: AppNotification): Pick<ToastItem, "title" | "variant"> {
+function toastForNotification(
+  payload: AppNotification,
+  t: (key: string) => string,
+): Pick<ToastItem, "title" | "variant"> {
   switch (payload.type) {
     case "team:join-request":
-      return { title: "Join request", variant: "default" };
+      return { title: t("notifications.toastJoinRequest"), variant: "default" };
     case "team:join-request:accepted":
-      return { title: "Request accepted", variant: "success" };
+      return { title: t("notifications.toastJoinRequestAccepted"), variant: "success" };
     case "team:join-request:rejected":
-      return { title: "Request rejected", variant: "destructive" };
+      return { title: t("notifications.toastJoinRequestRejected"), variant: "destructive" };
     case "team:invite":
-      return { title: "Team invite", variant: "default" };
+      return { title: t("notifications.toastInvite"), variant: "default" };
     case "team:invite:accepted":
-      return { title: "Invite accepted", variant: "success" };
+      return { title: t("notifications.toastInviteAccepted"), variant: "success" };
     case "team:invite:rejected":
-      return { title: "Invite declined", variant: "destructive" };
+      return { title: t("notifications.toastInviteRejected"), variant: "destructive" };
   }
 }
 
 export function NotificationsProvider({ token, children }: Props) {
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState<NotificationDto[]>([]);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const counterRef = useRef(0);
@@ -116,8 +121,8 @@ export function NotificationsProvider({ token, children }: Props) {
       setNotifications((prev) => [fake, ...prev]);
 
       // Fire a toast
-      const { title, variant } = toastForNotification(payload);
-      addToast(title, notificationText(payload), variant);
+      const { title, variant } = toastForNotification(payload, t);
+      addToast(title, notificationText(payload, t), variant);
     });
 
     socket.on("connect_error", (err) => {

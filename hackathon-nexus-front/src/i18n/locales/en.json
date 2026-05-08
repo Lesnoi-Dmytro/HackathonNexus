@@ -1,0 +1,153 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "back": "Back",
+    "error": "Error",
+    "notConnected": "Not connected"
+  },
+  "nav": {
+    "messages": "Messages",
+    "signOut": "Sign out"
+  },
+  "roles": {
+    "admin": "Admin",
+    "participant": "Participant"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications yet",
+    "justNow": "just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago",
+    "joinRequest": "{{firstName}} {{lastName}} wants to join team \"{{teamName}}\"",
+    "joinRequestAccepted": "Your request to join \"{{teamName}}\" was accepted",
+    "joinRequestRejected": "Your request to join \"{{teamName}}\" was rejected",
+    "invite": "{{firstName}} {{lastName}} invited you to team \"{{teamName}}\"",
+    "inviteAccepted": "{{firstName}} {{lastName}} accepted your invite",
+    "inviteRejected": "{{firstName}} {{lastName}} declined your invite",
+    "toastJoinRequest": "Join request",
+    "toastJoinRequestAccepted": "Request accepted",
+    "toastJoinRequestRejected": "Request rejected",
+    "toastInvite": "Team invite",
+    "toastInviteAccepted": "Invite accepted",
+    "toastInviteRejected": "Invite declined"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "welcomeBack": "Welcome back to Hackathon Nexus",
+    "email": "Email",
+    "password": "Password",
+    "signingIn": "Signing in…",
+    "noAccount": "Don't have an account?",
+    "createOne": "Create one",
+    "loginFailed": "Login failed",
+    "createAccount": "Create account",
+    "joinSubtitle": "Join Hackathon Nexus",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "role": "Role",
+    "roleParticipant": "Participant",
+    "roleAdmin": "Hackathon Admin",
+    "creatingAccount": "Creating account…",
+    "alreadyHaveAccount": "Already have an account?",
+    "registrationFailed": "Registration failed"
+  },
+  "hackathons": {
+    "title": "Hackathons",
+    "upcoming": "Upcoming",
+    "ongoing": "Ongoing",
+    "searchPlaceholder": "Search hackathons…",
+    "all": "All",
+    "noHackathons": "No hackathons found.",
+    "prev": "← Prev",
+    "next": "Next →",
+    "total": "({{count}} total)"
+  },
+  "hackathonDetail": {
+    "backToHackathons": "Back to hackathons",
+    "starts": "Starts",
+    "ends": "Ends",
+    "duration": "Duration",
+    "maxTeamSize": "Max team size",
+    "participants": "Participants",
+    "ended": "This hackathon has ended",
+    "liveNow": "Live now!",
+    "registered": "Registered",
+    "unregister": "Unregister",
+    "processing": "Processing…",
+    "registrationFull": "Registration full",
+    "registerBtn": "Register for this hackathon",
+    "registering": "Registering…",
+    "teamTitle": "Team",
+    "teamDesc": "Create a team or join an existing one before the hackathon starts.",
+    "manageTeam": "Manage Team",
+    "notFound": "Hackathon not found",
+    "durationHours": "{{hours}}h"
+  },
+  "teamManagement": {
+    "back": "Back to hackathon",
+    "title": "Team Management",
+    "myTeam": "My Team",
+    "createTeam": "Create Team",
+    "teamChat": "Team Chat",
+    "members": "{{count}} / {{max}} members",
+    "inviteParticipants": "Invite participants",
+    "searchByName": "Search by name…",
+    "searching": "Searching…",
+    "noParticipants": "No available participants found",
+    "invite": "Invite",
+    "createHint": "Give your team a name to get started.",
+    "teamNamePlaceholder": "Team name…",
+    "creating": "Creating…",
+    "create": "Create",
+    "orFindTeam": "Or find an existing team to join",
+    "browseTeams": "Browse teams"
+  },
+  "teamSearch": {
+    "back": "Back to team management",
+    "title": "Find a Team",
+    "searchPlaceholder": "Search teams…",
+    "loadingTeams": "Loading teams…",
+    "noTeams": "No teams found. Be the first to create one!"
+  },
+  "chat": {
+    "sidebarTitle": "Messages",
+    "newDm": "New direct message",
+    "userIdPlaceholder": "Paste user ID…",
+    "opening": "Opening…",
+    "startChat": "Start chat",
+    "loadingRooms": "Loading…",
+    "noChats": "No chats yet. Join a team to get started.",
+    "team": "Team",
+    "dm": "DM",
+    "selectConversation": "Select a conversation or start a new one",
+    "members": "Members",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "loadingMessages": "Loading messages…",
+    "loadOlderMessages": "Load older messages",
+    "noMessages": "No messages yet. Say hello!",
+    "messagePlaceholder": "Message… (Enter to send, Shift+Enter for newline)",
+    "teamRoom_one": "Team · {{count}} member",
+    "teamRoom_other": "Team · {{count}} members",
+    "directMessage": "Direct Message",
+    "sendDm": "Send DM",
+    "errorLoadRooms": "Could not load chat rooms",
+    "errorLoadMessages": "Could not load messages",
+    "errorLoadMore": "Could not load more messages",
+    "errorOpenDm": "Failed to open DM"
+  },
+  "memberCard": {
+    "leader": "Leader"
+  },
+  "teamCard": {
+    "requestToJoin": "Request to join"
+  },
+  "hackathonCard": {
+    "maxTeamSize": "max {{count}}",
+    "registered": "Registered",
+    "full": "· Full"
+  }
+}

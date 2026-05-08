@@ -1,4 +1,5 @@
 import { Calendar, CheckCircle, Clock, Code2, Ticket, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import type { HackathonDto } from "../../api/hackathons";
 import styles from "./HackathonCard.module.css";
@@ -12,6 +13,7 @@ function formatDate(iso: string): string {
 }
 
 export function HackathonCard({ hackathon: h }: { hackathon: HackathonDto }) {
+  const { t } = useTranslation();
   return (
     <Link to={`/hackathons/${h.id}`} className={styles.cardLink}>
       <article className={styles.card}>
@@ -34,17 +36,17 @@ export function HackathonCard({ hackathon: h }: { hackathon: HackathonDto }) {
               <Clock size={13} /> {h.durationHours}h
             </span>
             <span className={styles.cardMetaItem}>
-              <Users size={13} /> max {h.maxTeamSize}
+              <Users size={13} /> {t("hackathonCard.maxTeamSize", { count: h.maxTeamSize })}
             </span>
             {h.maxParticipants != null && (
               <span className={styles.cardMetaItem}>
                 <Ticket size={13} /> {h.participantCount}/{h.maxParticipants}
-                {h.registrationFull && " · Full"}
+                {h.registrationFull && ` ${t("hackathonCard.full")}`}
               </span>
             )}
             {h.isRegistered && (
               <span className={styles.cardRegistered}>
-                <CheckCircle size={13} /> Registered
+                <CheckCircle size={13} /> {t("hackathonCard.registered")}
               </span>
             )}
           </div>

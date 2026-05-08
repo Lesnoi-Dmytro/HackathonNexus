@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { TeamDto } from "../../api/teams";
 import { Button } from "../../shared/ui/Button";
 import { MemberCard } from "./MemberCard";
@@ -12,6 +13,7 @@ export function TeamCard({
   maxTeamSize: number;
   onRequestJoin: () => void;
 }) {
+  const { t } = useTranslation();
   const isFull = team.members.length >= maxTeamSize;
   return (
     <div className={styles.teamCard}>
@@ -28,7 +30,7 @@ export function TeamCard({
       </div>
       {!isFull && (
         <Button variant="outline" size="sm" onClick={onRequestJoin}>
-          Request to join
+          {t("teamCard.requestToJoin")}
         </Button>
       )}
     </div>

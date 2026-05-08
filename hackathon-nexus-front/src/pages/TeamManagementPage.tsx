@@ -1,5 +1,6 @@
 import { ChevronLeft, MessageSquare, Search, UserPlus } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { getOrCreateTeamRoom } from "../api/chat";
 import { getHackathon, type HackathonDto } from "../api/hackathons";
@@ -26,6 +27,7 @@ export function TeamManagementPage() {
   const { token, user } = useAuth();
   const { toast } = useNotifications();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [hackathon, setHackathon] = useState<HackathonDto | null>(null);
   const [loadingHackathon, setLoadingHackathon] = useState(true);
@@ -142,7 +144,7 @@ export function TeamManagementPage() {
   }
 
   if (loadingHackathon || myTeam === undefined) {
-    return <div className={styles.state}>Loading…</div>;
+    return <div className={styles.state}>{t("common.loading")}</div>;
   }
 
   if (!hackathon) return null;
@@ -156,10 +158,10 @@ export function TeamManagementPage() {
         className={styles.backBtn}
         onClick={() => navigate(`/hackathons/${id}`)}
       >
-        <ChevronLeft size={16} /> Back to hackathon
+        <ChevronLeft size={16} /> {t("teamManagement.back")}
       </button>
 
-      <h1 className={styles.pageTitle}>Team Management</h1>
+      <h1 className={styles.pageTitle}>{t("teamManagement.title")}</h1>
       <p className={styles.pageSubtitle}>{hackathon.title}</p>
 
       <div className={styles.tabs}>
@@ -169,7 +171,7 @@ export function TeamManagementPage() {
             className={`${styles.tab} ${activeTab === "my-team" ? styles.tabActive : ""}`}
             onClick={() => setActiveTab("my-team")}
           >
-            My Team
+            {t("teamManagement.myTeam")}
           </button>
         )}
         {!myTeam && (
@@ -178,7 +180,7 @@ export function TeamManagementPage() {
             className={`${styles.tab} ${activeTab === "create" ? styles.tabActive : ""}`}
             onClick={() => setActiveTab("create")}
           >
-            Create Team
+            {t("teamManagement.createTeam")}
           </button>
         )}
       </div>
@@ -188,10 +190,13 @@ export function TeamManagementPage() {
           <div className={styles.myTeamHeader}>
             <span className={styles.myTeamName}>{myTeam.name}</span>
             <span className={styles.myTeamSize}>
-              {myTeam.members.length} / {hackathon.maxTeamSize} members
+              {t("teamManagement.members", {
+                count: myTeam.members.length,
+                max: hackathon.maxTeamSize,
+              })}
             </span>
             <Button variant="outline" size="sm" onClick={handleOpenTeamChat}>
-              <MessageSquare size={14} /> Team Chat
+              <MessageSquare size={14} /> {t("teamManagement.teamChat")}
             </Button>
           </div>
           <div className={styles.memberList}>
@@ -203,19 +208,19 @@ export function TeamManagementPage() {
           {canInvite && (
             <div className={styles.inviteSection}>
               <h3 className={styles.subTitle}>
-                <UserPlus size={16} /> Invite participants
+                <UserPlus size={16} /> {t("teamManagement.inviteParticipants")}
               </h3>
               <Input
-                placeholder="Search by name…"
+                placeholder={t("teamManagement.searchByName")}
                 value={membersSearch}
                 onChange={(e) => setMembersSearch(e.target.value)}
                 inputSize="sm"
               />
-              {loadingMembers && <p className={styles.stateSmall}>Searching…</p>}
+              {loadingMembers && <p className={styles.stateSmall}>{t("teamManagement.searching")}</p>}
               {!loadingMembers && membersPage && (
                 <div className={styles.memberList}>
                   {membersPage.members.length === 0 && (
-                    <p className={styles.stateSmall}>No available participants found</p>
+                    <p className={styles.stateSmall}>{t("teamManagement.noParticipants")}</p>
                   )}
                   {membersPage.members.map((m) => (
                     <MemberCard
@@ -223,7 +228,7 @@ export function TeamManagementPage() {
                       member={m}
                       action={
                         <Button size="sm" variant="outline" onClick={() => handleInviteMember(m)}>
-                          Invite
+                          {t("teamManagement.invite")}
                         </Button>
                       }
                     />
@@ -238,16 +243,16 @@ export function TeamManagementPage() {
       {activeTab === "create" && !myTeam && (
         <>
           <form onSubmit={handleCreateTeam} className={styles.createForm}>
-            <p className={styles.createHint}>Give your team a name to get started.</p>
+            <p className={styles.createHint}>{t("teamManagement.createHint")}</p>
             <div className={styles.createRow}>
               <Input
-                placeholder="Team name…"
+                placeholder={t("teamManagement.teamNamePlaceholder")}
                 value={teamName}
                 onChange={(e) => setTeamName(e.target.value)}
                 required
               />
               <Button type="submit" disabled={creatingTeam || !teamName.trim()}>
-                {creatingTeam ? "Creating…" : "Create"}
+                {creatingTeam ? t("teamManagement.creating") : t("teamManagement.create")}
               </Button>
             </div>
           </form>
@@ -255,13 +260,13 @@ export function TeamManagementPage() {
           <div className={styles.divider} />
 
           <div className={styles.searchPrompt}>
-            <p className={styles.searchPromptText}>Or find an existing team to join</p>
+            <p className={styles.searchPromptText}>{t("teamManagement.orFindTeam")}</p>
             <Button
               variant="outline"
               size="sm"
               onClick={() => navigate(`/hackathons/${id}/team/search`)}
             >
-              <Search size={15} /> Browse teams
+              <Search size={15} /> {t("teamManagement.browseTeams")}
             </Button>
           </div>
         </>

@@ -1,5 +1,6 @@
 import { MessageSquare } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import type { NotificationDto } from "../api/notifications";
 import { notificationText } from "../api/notifications.types";
@@ -7,20 +8,22 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNotifications } from "../contexts/NotificationsContext";
 import { Button } from "../shared/ui/Button";
 import styles from "./AppLayout.module.css";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
-function timeAgo(iso: string): string {
+function timeAgo(iso: string, t: (key: string, opts?: Record<string, unknown>) => string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60_000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return t("notifications.justNow");
+  if (mins < 60) return t("notifications.minutesAgo", { count: mins });
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
+  if (hrs < 24) return t("notifications.hoursAgo", { count: hrs });
+  return t("notifications.daysAgo", { count: Math.floor(hrs / 24) });
 }
 
 export function AppLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -49,7 +52,8 @@ export function AppLayout() {
 
   const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : "?";
 
-  const roleLabel = user?.role === "hackathon-admin" ? "Admin" : "Participant";
+  const roleLabel =
+    user?.role === "hackathon-admin" ? t("roles.admin") : t("roles.participant");
 
   return (
     <div className={styles.layout}>
@@ -67,7 +71,7 @@ export function AppLayout() {
             }
           >
             <MessageSquare size={16} />
-            Messages
+            {t("nav.messages")}
           </NavLink>
         </nav>
 
@@ -77,7 +81,7 @@ export function AppLayout() {
             <button
               type="button"
               className={styles.bell}
-              aria-label="Notifications"
+              aria-label={t("notifications.title")}
               onClick={() => setDropdownOpen((v) => !v)}
             >
               <BellIcon />
@@ -89,16 +93,16 @@ export function AppLayout() {
             {dropdownOpen && (
               <div className={styles.dropdown}>
                 <div className={styles.dropdownHeader}>
-                  <span>Notifications</span>
+                  <span>{t("notifications.title")}</span>
                   {unreadCount > 0 && (
                     <button type="button" className={styles.markAllBtn} onClick={markAllRead}>
-                      Mark all as read
+                      {t("notifications.markAllRead")}
                     </button>
                   )}
                 </div>
                 <div className={styles.notifList}>
                   {notifications.length === 0 ? (
-                    <p className={styles.notifEmpty}>No notifications yet</p>
+                    <p className={styles.notifEmpty}>{t("notifications.empty")}</p>
                   ) : (
                     notifications.map((n) => (
                       <div
@@ -112,8 +116,8 @@ export function AppLayout() {
                         <span
                           className={`${styles.notifDot} ${n.read ? styles.notifDotRead : ""}`}
                         />
-                        <span className={styles.notifText}>{notificationText(n.payload)}</span>
-                        <span className={styles.notifTime}>{timeAgo(n.createdAt)}</span>
+                        <span className={styles.notifText}>{notificationText(n.payload, t)}</span>
+                        <span className={styles.notifTime}>{timeAgo(n.createdAt, t)}</span>
                       </div>
                     ))
                   )}
@@ -136,8 +140,9 @@ export function AppLayout() {
           </div>
 
           <Button variant="outline" size="sm" onClick={handleLogout}>
-            Sign out
+            {t("nav.signOut")}
           </Button>
+          <LanguageSwitcher />
         </div>
       </header>
 

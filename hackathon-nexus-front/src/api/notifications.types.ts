@@ -58,19 +58,36 @@ export type AppNotification =
   | InviteAcceptedNotification
   | InviteRejectedNotification;
 
-export function notificationText(n: AppNotification): string {
+export function notificationText(
+  n: AppNotification,
+  t: (key: string, opts?: Record<string, unknown>) => string,
+): string {
   switch (n.type) {
     case "team:join-request":
-      return `${n.participant.firstName} ${n.participant.lastName} wants to join team "${n.teamName}"`;
+      return t("notifications.joinRequest", {
+        firstName: n.participant.firstName,
+        lastName: n.participant.lastName,
+        teamName: n.teamName,
+      });
     case "team:join-request:accepted":
-      return `Your request to join "${n.teamName}" was accepted`;
+      return t("notifications.joinRequestAccepted", { teamName: n.teamName });
     case "team:join-request:rejected":
-      return `Your request to join "${n.teamName}" was rejected`;
+      return t("notifications.joinRequestRejected", { teamName: n.teamName });
     case "team:invite":
-      return `${n.leader.firstName} ${n.leader.lastName} invited you to team "${n.teamName}"`;
+      return t("notifications.invite", {
+        firstName: n.leader.firstName,
+        lastName: n.leader.lastName,
+        teamName: n.teamName,
+      });
     case "team:invite:accepted":
-      return `${n.participant.firstName} ${n.participant.lastName} accepted your invite`;
+      return t("notifications.inviteAccepted", {
+        firstName: n.participant.firstName,
+        lastName: n.participant.lastName,
+      });
     case "team:invite:rejected":
-      return `${n.participant.firstName} ${n.participant.lastName} declined your invite`;
+      return t("notifications.inviteRejected", {
+        firstName: n.participant.firstName,
+        lastName: n.participant.lastName,
+      });
   }
 }

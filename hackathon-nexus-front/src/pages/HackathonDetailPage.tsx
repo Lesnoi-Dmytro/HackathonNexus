@@ -1,21 +1,22 @@
 import {
-  Calendar,
-  CheckCircle,
-  ChevronLeft,
-  Clock,
-  Code2,
-  Flag,
-  Radio,
-  Ticket,
-  Users,
+    Calendar,
+    CheckCircle,
+    ChevronLeft,
+    Clock,
+    Code2,
+    Flag,
+    Radio,
+    Ticket,
+    Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
-  getHackathon,
-  registerForHackathon,
-  unregisterFromHackathon,
-  type HackathonDto,
+    getHackathon,
+    registerForHackathon,
+    unregisterFromHackathon,
+    type HackathonDto,
 } from "../api/hackathons";
 import { MetaCard } from "../components/hackathon/MetaCard";
 import { useAuth } from "../contexts/AuthContext";
@@ -44,6 +45,7 @@ export function HackathonDetailPage() {
   const { token, user } = useAuth();
   const { toast } = useNotifications();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [hackathon, setHackathon] = useState<HackathonDto | null>(null);
   const [loadingHackathon, setLoadingHackathon] = useState(true);
@@ -57,7 +59,7 @@ export function HackathonDetailPage() {
     setLoadingHackathon(true);
     getHackathon(token, id)
       .then(setHackathon)
-      .catch((err: unknown) => setError(err instanceof Error ? err.message : "Failed to load"))
+      .catch((err: unknown) => setError(err instanceof Error ? err.message : t("common.back")))
       .finally(() => setLoadingHackathon(false));
   }, [token, id]);
 
@@ -95,13 +97,13 @@ export function HackathonDetailPage() {
     }
   }
 
-  if (loadingHackathon) return <div className={styles.state}>Loading…</div>;
+  if (loadingHackathon) return <div className={styles.state}>{t("common.loading")}</div>;
   if (error || !hackathon) {
     return (
       <div className={styles.state}>
-        <p className={styles.stateError}>{error || "Hackathon not found"}</p>
+        <p className={styles.stateError}>{error || t("hackathonDetail.notFound")}</p>
         <Button variant="outline" size="sm" onClick={() => navigate("/hackathons")}>
-          Back
+          {t("common.back")}
         </Button>
       </div>
     );
@@ -117,7 +119,7 @@ export function HackathonDetailPage() {
   return (
     <div className={styles.page}>
       <button type="button" className={styles.backBtn} onClick={() => navigate("/hackathons")}>
-        <ChevronLeft size={16} /> Back to hackathons
+        <ChevronLeft size={16} /> {t("hackathonDetail.backToHackathons")}
       </button>
 
       <div className={styles.hero}>
@@ -138,46 +140,46 @@ export function HackathonDetailPage() {
       <div className={styles.metaGrid}>
         <MetaCard
           icon={<Calendar size={18} />}
-          label="Starts"
+          label={t("hackathonDetail.starts")}
           value={formatDate(hackathon.startDate)}
         />
         <MetaCard
           icon={<Flag size={18} />}
-          label="Ends"
+          label={t("hackathonDetail.ends")}
           value={endDate(hackathon.startDate, hackathon.durationHours)}
         />
         <MetaCard
           icon={<Clock size={18} />}
-          label="Duration"
-          value={`${hackathon.durationHours}h`}
+          label={t("hackathonDetail.duration")}
+          value={t("hackathonDetail.durationHours", { hours: hackathon.durationHours })}
         />
         <MetaCard
           icon={<Users size={18} />}
-          label="Max team size"
+          label={t("hackathonDetail.maxTeamSize")}
           value={String(hackathon.maxTeamSize)}
         />
         {hackathon.maxParticipants != null && (
           <MetaCard
             icon={<Ticket size={18} />}
-            label="Participants"
+            label={t("hackathonDetail.participants")}
             value={`${hackathon.participantCount} / ${hackathon.maxParticipants}`}
           />
         )}
         {hackathon.maxParticipants == null && hackathon.participantCount > 0 && (
           <MetaCard
             icon={<Ticket size={18} />}
-            label="Participants"
+            label={t("hackathonDetail.participants")}
             value={String(hackathon.participantCount)}
           />
         )}
       </div>
 
       {hasEnded && (
-        <div className={`${styles.banner} ${styles.bannerEnded}`}>This hackathon has ended</div>
+        <div className={`${styles.banner} ${styles.bannerEnded}`}>{t("hackathonDetail.ended")}</div>
       )}
       {!hasEnded && hasStarted && (
         <div className={`${styles.banner} ${styles.bannerOngoing}`}>
-          <Radio size={14} /> Live now!
+          <Radio size={14} /> {t("hackathonDetail.liveNow")}
         </div>
       )}
 
@@ -186,19 +188,19 @@ export function HackathonDetailPage() {
           {hackathon.isRegistered ? (
             <div className={styles.registeredRow}>
               <span className={styles.registeredBadge}>
-                <CheckCircle size={14} /> Registered
+                <CheckCircle size={14} /> {t("hackathonDetail.registered")}
               </span>
               {!hasStarted && (
                 <Button variant="ghost" size="sm" onClick={handleUnregister} disabled={registering}>
-                  {registering ? "Processing…" : "Unregister"}
+                  {registering ? t("hackathonDetail.processing") : t("hackathonDetail.unregister")}
                 </Button>
               )}
             </div>
           ) : hackathon.registrationFull ? (
-            <span className={styles.fullBadge}>Registration full</span>
+            <span className={styles.fullBadge}>{t("hackathonDetail.registrationFull")}</span>
           ) : (
             <Button onClick={handleRegister} disabled={registering}>
-              {registering ? "Registering…" : "Register for this hackathon"}
+              {registering ? t("hackathonDetail.registering") : t("hackathonDetail.registerBtn")}
             </Button>
           )}
         </div>
@@ -207,13 +209,11 @@ export function HackathonDetailPage() {
       {canManageTeam && (
         <div className={styles.teamBox}>
           <div className={styles.teamBoxInfo}>
-            <p className={styles.teamBoxTitle}>Team</p>
-            <p className={styles.teamBoxDesc}>
-              Create a team or join an existing one before the hackathon starts.
-            </p>
+            <p className={styles.teamBoxTitle}>{t("hackathonDetail.teamTitle")}</p>
+            <p className={styles.teamBoxDesc}>{t("hackathonDetail.teamDesc")}</p>
           </div>
           <Link to={`/hackathons/${id}/team`}>
-            <Button variant="outline">Manage Team</Button>
+            <Button variant="outline">{t("hackathonDetail.manageTeam")}</Button>
           </Link>
         </div>
       )}

@@ -1,5 +1,6 @@
 import { Crown } from "lucide-react";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import type { TeamMemberDto } from "../../api/teams";
 import styles from "./MemberCard.module.css";
 
@@ -12,6 +13,7 @@ export function MemberCard({
   isLeader?: boolean;
   action?: ReactNode;
 }) {
+  const { t } = useTranslation();
   return (
     <div className={styles.memberCard}>
       <div className={styles.memberAvatar}>
@@ -23,7 +25,7 @@ export function MemberCard({
           {member.firstName} {member.lastName}
           {isLeader && (
             <span className={styles.leaderBadge}>
-              <Crown size={10} /> Leader
+              <Crown size={10} /> {t("memberCard.leader")}
             </span>
           )}
         </span>

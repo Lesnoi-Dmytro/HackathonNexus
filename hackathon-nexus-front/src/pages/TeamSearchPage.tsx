@@ -1,5 +1,6 @@
 import { ChevronLeft } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { getHackathon, type HackathonDto } from "../api/hackathons";
 import { findTeams, type TeamsPage } from "../api/teams";
@@ -15,6 +16,7 @@ export function TeamSearchPage() {
   const { token } = useAuth();
   const { toast } = useNotifications();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [hackathon, setHackathon] = useState<HackathonDto | null>(null);
   const [loadingHackathon, setLoadingHackathon] = useState(true);
@@ -77,7 +79,7 @@ export function TeamSearchPage() {
   }
 
   if (loadingHackathon) {
-    return <div className={styles.state}>Loading…</div>;
+    return <div className={styles.state}>{t("common.loading")}</div>;
   }
 
   if (!hackathon) return null;
@@ -89,24 +91,24 @@ export function TeamSearchPage() {
         className={styles.backBtn}
         onClick={() => navigate(`/hackathons/${id}/team`)}
       >
-        <ChevronLeft size={16} /> Back to team management
+        <ChevronLeft size={16} /> {t("teamSearch.back")}
       </button>
 
-      <h1 className={styles.pageTitle}>Find a Team</h1>
+      <h1 className={styles.pageTitle}>{t("teamSearch.title")}</h1>
       <p className={styles.pageSubtitle}>{hackathon.title}</p>
 
       <div className={styles.searchWrap}>
         <Input
-          placeholder="Search teams…"
+          placeholder={t("teamSearch.searchPlaceholder")}
           value={teamsSearch}
           onChange={(e) => setTeamsSearch(e.target.value)}
           inputSize="sm"
         />
       </div>
 
-      {loadingTeams && <p className={styles.stateSmall}>Loading teams…</p>}
+      {loadingTeams && <p className={styles.stateSmall}>{t("teamSearch.loadingTeams")}</p>}
       {!loadingTeams && teamsPage && teamsPage.teams.length === 0 && (
-        <p className={styles.stateSmall}>No teams found. Be the first to create one!</p>
+        <p className={styles.stateSmall}>{t("teamSearch.noTeams")}</p>
       )}
       {!loadingTeams &&
         teamsPage &&

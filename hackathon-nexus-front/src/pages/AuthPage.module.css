@@ -7,6 +7,12 @@
   background-color: var(--color-bg, #0f0f0f);
 }
 
+.langSwitch {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+}
+
 .card {
   width: 100%;
   max-width: 420px;

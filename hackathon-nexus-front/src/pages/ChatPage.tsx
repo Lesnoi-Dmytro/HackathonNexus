@@ -1,5 +1,6 @@
 import { MessageSquarePlus, Send, Users, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import {
     type ChatMemberDto,
@@ -19,12 +20,16 @@ import styles from "./ChatPage.module.css";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function getRoomLabel(room: ChatRoomDto, myUserId: string): string {
+function getRoomLabel(
+  room: ChatRoomDto,
+  myUserId: string,
+  t: (key: string, opts?: Record<string, unknown>) => string,
+): string {
   if (room.type === "team") {
-    return `Team · ${room.members.length} member${room.members.length === 1 ? "" : "s"}`;
+    return t("chat.teamRoom", { count: room.members.length });
   }
   const other = room.members.find((m) => m.id !== myUserId);
-  return other ? `${other.firstName} ${other.lastName}` : "Direct Message";
+  return other ? `${other.firstName} ${other.lastName}` : t("chat.directMessage");
 }
 
 function formatTime(iso: string): string {
@@ -32,13 +37,13 @@ function formatTime(iso: string): string {
   return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
-function formatDate(iso: string): string {
+function formatDate(iso: string, t: (key: string) => string): string {
   const d = new Date(iso);
   const today = new Date();
-  if (d.toDateString() === today.toDateString()) return "Today";
+  if (d.toDateString() === today.toDateString()) return t("chat.today");
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
-  if (d.toDateString() === yesterday.toDateString()) return "Yesterday";
+  if (d.toDateString() === yesterday.toDateString()) return t("chat.yesterday");
   return d.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
@@ -47,6 +52,7 @@ function formatDate(iso: string): string {
 export function ChatPage() {
   const { token, user } = useAuth();
   const { toast } = useNotifications();
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [rooms, setRooms] = useState<ChatRoomDto[]>([]);
@@ -84,7 +90,7 @@ export function ChatPage() {
         const target = qRoom ? data.find((r) => r.id === qRoom) : data[0];
         if (target) setActiveRoomId(target.id);
       })
-      .catch(() => toast("Error", "Could not load chat rooms", "destructive"))
+      .catch(() => toast(t("common.error"), t("chat.errorLoadRooms"), "destructive"))
       .finally(() => setLoadingRooms(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
@@ -104,7 +110,7 @@ export function ChatPage() {
         // Sync query param
         setSearchParams({ room: activeRoomId }, { replace: true });
       })
-      .catch(() => toast("Error", "Could not load messages", "destructive"))
+      .catch(() => toast(t("common.error"), t("chat.errorLoadMessages"), "destructive"))
       .finally(() => setLoadingMessages(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, activeRoomId]);
@@ -162,7 +168,7 @@ export function ChatPage() {
       setMessages((prev) => [...[...older].reverse(), ...prev]);
       setHasMore(older.length === 50);
     } catch {
-      toast("Error", "Could not load more messages", "destructive");
+      toast(t("common.error"), t("chat.errorLoadMore"), "destructive");
     } finally {
       setLoadingMore(false);
     }
@@ -175,7 +181,7 @@ export function ChatPage() {
     if (!content || !activeRoomId || sending) return;
     const socket = getSocket();
     if (!socket) {
-      toast("Error", "Not connected", "destructive");
+      toast(t("common.error"), t("common.notConnected"), "destructive");
       return;
     }
     setSending(true);
@@ -208,7 +214,7 @@ export function ChatPage() {
       setShowNewDm(false);
       setDmTargetId("");
     } catch (err) {
-      toast("Error", err instanceof Error ? err.message : "Failed to open DM", "destructive");
+      toast(t("common.error"), err instanceof Error ? err.message : t("chat.errorOpenDm"), "destructive");
     } finally {
       setOpeningDm(false);
     }
@@ -253,11 +259,11 @@ export function ChatPage() {
       {/* ── Sidebar ── */}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
-          <span className={styles.sidebarTitle}>Messages</span>
+          <span className={styles.sidebarTitle}>{t("chat.sidebarTitle")}</span>
           <button
             type="button"
             className={styles.newDmBtn}
-            title="New direct message"
+            title={t("chat.newDm")}
             onClick={() => setShowNewDm((v) => !v)}
           >
             <MessageSquarePlus size={18} />
@@ -267,7 +273,7 @@ export function ChatPage() {
         {showNewDm && (
           <div className={styles.newDmForm}>
             <Input
-              placeholder="Paste user ID…"
+              placeholder={t("chat.userIdPlaceholder")}
               value={dmTargetId}
               onChange={(e) => setDmTargetId(e.target.value)}
               inputSize="sm"
@@ -277,15 +283,15 @@ export function ChatPage() {
               disabled={!dmTargetId.trim() || openingDm}
               onClick={() => handleOpenDm(dmTargetId.trim())}
             >
-              {openingDm ? "Opening…" : "Start chat"}
+              {openingDm ? t("chat.opening") : t("chat.startChat")}
             </Button>
           </div>
         )}
 
         <div className={styles.roomList}>
-          {loadingRooms && <p className={styles.stateMsg}>Loading…</p>}
+          {loadingRooms && <p className={styles.stateMsg}>{t("chat.loadingRooms")}</p>}
           {!loadingRooms && rooms.length === 0 && (
-            <p className={styles.stateMsg}>No chats yet. Join a team to get started.</p>
+            <p className={styles.stateMsg}>{t("chat.noChats")}</p>
           )}
           {rooms.map((room) => (
             <button
@@ -294,11 +300,11 @@ export function ChatPage() {
               className={`${styles.roomItem} ${room.id === activeRoomId ? styles.roomActive : ""}`}
               onClick={() => setActiveRoomId(room.id)}
             >
-              <span className={styles.roomName}>{getRoomLabel(room, user?.id ?? "")}</span>
+              <span className={styles.roomName}>{getRoomLabel(room, user?.id ?? "", t)}</span>
               <span
                 className={`${styles.roomBadge} ${room.type === "team" ? styles.badgeTeam : styles.badgeDm}`}
               >
-                {room.type === "team" ? "Team" : "DM"}
+                {room.type === "team" ? t("chat.team") : t("chat.dm")}
               </span>
             </button>
           ))}
@@ -310,18 +316,18 @@ export function ChatPage() {
         {!activeRoom ? (
           <div className={styles.empty}>
             <MessageSquarePlus size={48} opacity={0.2} />
-            <p>Select a conversation or start a new one</p>
+            <p>{t("chat.selectConversation")}</p>
           </div>
         ) : (
           <>
             {/* Header */}
             <div className={styles.paneHeader}>
               <div className={styles.paneHeaderLeft}>
-                <span className={styles.paneName}>{getRoomLabel(activeRoom, user?.id ?? "")}</span>
+                <span className={styles.paneName}>{getRoomLabel(activeRoom, user?.id ?? "", t)}</span>
                 <span
                   className={`${styles.roomBadge} ${activeRoom.type === "team" ? styles.badgeTeam : styles.badgeDm}`}
                 >
-                  {activeRoom.type === "team" ? "Team" : "DM"}
+                  {activeRoom.type === "team" ? t("chat.team") : t("chat.dm")}
                 </span>
               </div>
               <button
@@ -339,7 +345,7 @@ export function ChatPage() {
             {showMembers && (
               <div className={styles.membersPanel}>
                 <div className={styles.membersPanelHeader}>
-                  <span>Members</span>
+                  <span>{t("chat.members")}</span>
                   <button
                     type="button"
                     className={styles.closeBtn}
@@ -361,7 +367,7 @@ export function ChatPage() {
                       <button
                         type="button"
                         className={styles.dmMemberBtn}
-                        title="Send DM"
+                        title={t("chat.sendDm")}
                         onClick={() => handleMemberDm(m)}
                       >
                         <MessageSquarePlus size={14} />
@@ -374,7 +380,7 @@ export function ChatPage() {
 
             {/* Messages */}
             <div className={styles.messages}>
-              {loadingMessages && <p className={styles.stateMsg}>Loading messages…</p>}
+              {loadingMessages && <p className={styles.stateMsg}>{t("chat.loadingMessages")}</p>}
 
               {!loadingMessages && hasMore && (
                 <button
@@ -383,12 +389,12 @@ export function ChatPage() {
                   onClick={loadMore}
                   disabled={loadingMore}
                 >
-                  {loadingMore ? "Loading…" : "Load older messages"}
+                  {loadingMore ? t("common.loading") : t("chat.loadOlderMessages")}
                 </button>
               )}
 
               {!loadingMessages && messages.length === 0 && (
-                <p className={styles.stateMsg}>No messages yet. Say hello!</p>
+                <p className={styles.stateMsg}>{t("chat.noMessages")}</p>
               )}
 
               {messages.map((msg, i) => {
@@ -396,13 +402,14 @@ export function ChatPage() {
                 const prevMsg = messages[i - 1];
                 const showSender = !prevMsg || prevMsg.sender.id !== msg.sender.id;
                 const showDateSep =
-                  !prevMsg || formatDate(prevMsg.createdAt) !== formatDate(msg.createdAt);
+                  !prevMsg ||
+                  formatDate(prevMsg.createdAt, t) !== formatDate(msg.createdAt, t);
 
                 return (
                   <div key={msg.id}>
                     {showDateSep && (
                       <div className={styles.dateSep}>
-                        <span>{formatDate(msg.createdAt)}</span>
+                        <span>{formatDate(msg.createdAt, t)}</span>
                       </div>
                     )}
                     <div className={`${styles.msgRow} ${isMine ? styles.mine : styles.theirs}`}>
@@ -440,7 +447,7 @@ export function ChatPage() {
               <textarea
                 ref={textareaRef}
                 className={styles.textarea}
-                placeholder="Message… (Enter to send, Shift+Enter for newline)"
+                placeholder={t("chat.messagePlaceholder")}
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={handleKeyDown}

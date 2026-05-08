@@ -1,6 +1,8 @@
 import { type FormEvent, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../api/auth";
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "../shared/ui/Button";
 import { Input } from "../shared/ui/Input";
@@ -9,6 +11,7 @@ import styles from "./AuthPage.module.css";
 export function LoginPage() {
   const navigate = useNavigate();
   const { setAuth } = useAuth();
+  const { t } = useTranslation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +28,7 @@ export function LoginPage() {
       setAuth(accessToken, user);
       navigate("/hackathons", { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      setError(err instanceof Error ? err.message : t("auth.loginFailed"));
     } finally {
       setIsSubmitting(false);
     }
@@ -33,13 +36,16 @@ export function LoginPage() {
 
   return (
     <div className={styles.page}>
+      <div className={styles.langSwitch}>
+        <LanguageSwitcher />
+      </div>
       <div className={styles.card}>
-        <h1 className={styles.title}>Sign in</h1>
-        <p className={styles.subtitle}>Welcome back to Hackathon Nexus</p>
+        <h1 className={styles.title}>{t("auth.signIn")}</h1>
+        <p className={styles.subtitle}>{t("auth.welcomeBack")}</p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <Input
-            label="Email"
+            label={t("auth.email")}
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -47,7 +53,7 @@ export function LoginPage() {
             required
           />
           <Input
-            label="Password"
+            label={t("auth.password")}
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -58,14 +64,14 @@ export function LoginPage() {
           {error && <p className={styles.error}>{error}</p>}
 
           <Button type="submit" size="lg" disabled={isSubmitting} className={styles.submit}>
-            {isSubmitting ? "Signing in…" : "Sign in"}
+            {isSubmitting ? t("auth.signingIn") : t("auth.signIn")}
           </Button>
         </form>
 
         <p className={styles.footer}>
-          Don&apos;t have an account?{" "}
+          {t("auth.noAccount")}{" "}
           <Link to="/register" className={styles.link}>
-            Create one
+            {t("auth.createOne")}
           </Link>
         </p>
       </div>

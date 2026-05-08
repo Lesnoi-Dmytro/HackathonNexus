@@ -1,6 +1,8 @@
 import { type FormEvent, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { register, type UserRole } from "../api/auth";
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "../shared/ui/Button";
 import { Input } from "../shared/ui/Input";
@@ -8,13 +10,14 @@ import { Select } from "../shared/ui/Select";
 import styles from "./AuthPage.module.css";
 
 const ROLE_OPTIONS = [
-  { value: "participant", label: "Participant" },
-  { value: "hackathon-admin", label: "Hackathon Admin" },
+  { value: "participant", label: "auth.roleParticipant" },
+  { value: "hackathon-admin", label: "auth.roleAdmin" },
 ];
 
 export function RegisterPage() {
   const navigate = useNavigate();
   const { setAuth } = useAuth();
+  const { t } = useTranslation();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -34,7 +37,7 @@ export function RegisterPage() {
       setAuth(accessToken, user);
       navigate("/hackathons", { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed");
+      setError(err instanceof Error ? err.message : t("auth.registrationFailed"));
     } finally {
       setIsSubmitting(false);
     }
@@ -42,14 +45,17 @@ export function RegisterPage() {
 
   return (
     <div className={styles.page}>
+      <div className={styles.langSwitch}>
+        <LanguageSwitcher />
+      </div>
       <div className={styles.card}>
-        <h1 className={styles.title}>Create account</h1>
-        <p className={styles.subtitle}>Join Hackathon Nexus</p>
+        <h1 className={styles.title}>{t("auth.createAccount")}</h1>
+        <p className={styles.subtitle}>{t("auth.joinSubtitle")}</p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.row}>
             <Input
-              label="First name"
+              label={t("auth.firstName")}
               type="text"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
@@ -57,7 +63,7 @@ export function RegisterPage() {
               required
             />
             <Input
-              label="Last name"
+              label={t("auth.lastName")}
               type="text"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
@@ -66,7 +72,7 @@ export function RegisterPage() {
             />
           </div>
           <Input
-            label="Email"
+            label={t("auth.email")}
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -74,7 +80,7 @@ export function RegisterPage() {
             required
           />
           <Input
-            label="Password"
+            label={t("auth.password")}
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -83,23 +89,23 @@ export function RegisterPage() {
             required
           />
           <Select
-            label="Role"
+            label={t("auth.role")}
             value={role}
             onValueChange={(v) => setRole(v as UserRole)}
-            options={ROLE_OPTIONS}
+            options={ROLE_OPTIONS.map((o) => ({ value: o.value, label: t(o.label) }))}
           />
 
           {error && <p className={styles.error}>{error}</p>}
 
           <Button type="submit" size="lg" disabled={isSubmitting} className={styles.submit}>
-            {isSubmitting ? "Creating account…" : "Create account"}
+            {isSubmitting ? t("auth.creatingAccount") : t("auth.createAccount")}
           </Button>
         </form>
 
         <p className={styles.footer}>
-          Already have an account?{" "}
+          {t("auth.alreadyHaveAccount")}{" "}
           <Link to="/login" className={styles.link}>
-            Sign in
+            {t("auth.signIn")}
           </Link>
         </p>
       </div>

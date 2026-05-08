@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
-  ALL_TOPICS,
-  listHackathons,
-  type HackathonTopic,
-  type HackathonsPage,
+    ALL_TOPICS,
+    listHackathons,
+    type HackathonTopic,
+    type HackathonsPage,
 } from "../api/hackathons";
 import { HackathonCard } from "../components/hackathon/HackathonCard";
 import { useAuth } from "../contexts/AuthContext";
@@ -15,6 +16,7 @@ const PAGE_SIZE = 12;
 
 export function HackathonsPage() {
   const { token } = useAuth();
+  const { t } = useTranslation();
 
   const [result, setResult] = useState<HackathonsPage>({
     data: [],
@@ -63,7 +65,7 @@ export function HackathonsPage() {
     })
       .then(setResult)
       .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : "Failed to load hackathons");
+        setError(err instanceof Error ? err.message : t("common.loading"));
       })
       .finally(() => setIsLoading(false));
   }, [token, activeTopic, debouncedSearch, notStarted, notEnded, page]);
@@ -73,7 +75,7 @@ export function HackathonsPage() {
   return (
     <div className={styles.page}>
       <div className={styles.toolbar}>
-        <h2 className={styles.heading}>Hackathons</h2>
+        <h2 className={styles.heading}>{t("hackathons.title")}</h2>
 
         <div className={styles.toolbarRight}>
           {/* Status toggles */}
@@ -82,20 +84,20 @@ export function HackathonsPage() {
             className={`${styles.toggle} ${notStarted ? styles.toggleActive : ""}`}
             onClick={() => setNotStarted((v) => !v)}
           >
-            Upcoming
+            {t("hackathons.upcoming")}
           </button>
           <button
             type="button"
             className={`${styles.toggle} ${notEnded ? styles.toggleActive : ""}`}
             onClick={() => setNotEnded((v) => !v)}
           >
-            Ongoing
+            {t("hackathons.ongoing")}
           </button>
 
           {/* Search */}
           <div className={styles.searchWrap}>
             <Input
-              placeholder="Search hackathons…"
+              placeholder={t("hackathons.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               inputSize="sm"
@@ -111,7 +113,7 @@ export function HackathonsPage() {
           className={`${styles.chip} ${activeTopic === undefined ? styles.chipActive : ""}`}
           onClick={() => setActiveTopic(undefined)}
         >
-          All
+          {t("hackathons.all")}
         </button>
         {ALL_TOPICS.map((topic) => (
           <button
@@ -126,10 +128,10 @@ export function HackathonsPage() {
       </div>
 
       {/* States */}
-      {isLoading && <p className={styles.loading}>Loading…</p>}
+      {isLoading && <p className={styles.loading}>{t("common.loading")}</p>}
       {!isLoading && error && <p className={styles.error}>{error}</p>}
       {!isLoading && !error && result.data.length === 0 && (
-        <p className={styles.empty}>No hackathons found.</p>
+        <p className={styles.empty}>{t("hackathons.noHackathons")}</p>
       )}
 
       {/* Grid */}
@@ -150,11 +152,11 @@ export function HackathonsPage() {
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
           >
-            ← Prev
+            {t("hackathons.prev")}
           </Button>
           <span className={styles.pageInfo}>
             {page} / {totalPages}
-            <span className={styles.totalCount}>({result.total} total)</span>
+            <span className={styles.totalCount}>{t("hackathons.total", { count: result.total })}</span>
           </span>
           <Button
             variant="outline"
@@ -162,7 +164,7 @@ export function HackathonsPage() {
             disabled={page >= totalPages}
             onClick={() => setPage((p) => p + 1)}
           >
-            Next →
+            {t("hackathons.next")}
           </Button>
         </div>
       )}
