@@ -41,6 +41,30 @@
   margin-bottom: 1.25rem;
 }
 
+/* ── Pagination ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border, #2a2a2a);
+}
+
+.pageInfo {
+  font-size: 0.875rem;
+  color: var(--color-text, #fff);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.totalCount {
+  font-size: 0.78rem;
+  color: var(--color-muted, #888);
+}
+
 /* ── State ── */
 .state {
   display: flex;

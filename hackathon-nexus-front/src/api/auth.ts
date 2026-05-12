@@ -1,6 +1,16 @@
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+import { request } from "./client";
 
 export type UserRole = "hackathon-admin" | "participant";
+
+export interface ParticipantDto {
+  id: string;
+  experience?: string;
+  yearsOfExperience?: number;
+  skills: string[];
+  position?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface UserDto {
   id: number;
@@ -8,6 +18,7 @@ export interface UserDto {
   lastName: string;
   email: string;
   role: UserRole;
+  participant?: ParticipantDto;
   createdAt: string;
   updatedAt: string;
 }
@@ -30,36 +41,41 @@ export interface RegisterPayload {
   role: UserRole;
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    headers: { "Content-Type": "application/json", ...init?.headers },
-    ...init,
-  });
-
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error((body as { message?: string }).message ?? `Request failed: ${res.status}`);
-  }
-
-  return res.json() as Promise<T>;
-}
-
 export function login(payload: LoginPayload): Promise<AuthResponse> {
-  return request<AuthResponse>("/auth/login", {
+  return request<AuthResponse>("/auth/login", undefined, {
     method: "POST",
     body: JSON.stringify(payload),
   });
 }
 
 export function register(payload: RegisterPayload): Promise<AuthResponse> {
-  return request<AuthResponse>("/auth/register", {
+  return request<AuthResponse>("/auth/register", undefined, {
     method: "POST",
     body: JSON.stringify(payload),
   });
 }
 
 export function getMe(token: string): Promise<UserDto> {
-  return request<UserDto>("/auth/me", {
-    headers: { Authorization: `Bearer ${token}` },
+  return request<UserDto>("/auth/me", token);
+}
+
+export function getUserById(token: string, userId: string): Promise<UserDto> {
+  return request<UserDto>(`/auth/users/${encodeURIComponent(userId)}`, token);
+}
+
+export interface UpdateParticipantPayload {
+  skills?: string[];
+  position?: string;
+  experience?: string;
+  yearsOfExperience?: number;
+}
+
+export function updateParticipantProfile(
+  token: string,
+  payload: UpdateParticipantPayload,
+): Promise<UserDto> {
+  return request<UserDto>("/auth/me/participant", token, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
   });
 }

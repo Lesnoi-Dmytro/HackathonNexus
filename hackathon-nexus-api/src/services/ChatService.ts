@@ -1,3 +1,4 @@
+import { In } from "typeorm";
 import { AppDataSource } from "../data-source";
 import { ChatRoom } from "../entities/ChatRoom";
 import { Message } from "../entities/Message";
@@ -16,8 +17,8 @@ export interface ChatMemberDto {
 export interface ChatRoomDto {
   id: string;
   type: ChatRoomType;
-  /** Populated for TEAM rooms only. */
   teamId?: string;
+  teamName?: string;
   members: ChatMemberDto[];
   createdAt: string;
 }
@@ -60,7 +61,19 @@ export class ChatService {
       .orderBy("room.createdAt", "ASC")
       .getMany();
 
-    return rooms.map((r) => this.toRoomDto(r));
+    const teamRooms = rooms.filter((r) => r.teamId);
+    let nameMap = new Map<string, string>();
+    if (teamRooms.length > 0) {
+      const teamIds = teamRooms.map((r) => r.teamId!);
+      const teams = await this.teamRepo.find({
+        where: { id: In(teamIds) },
+      });
+      nameMap = new Map(teams.map((t) => [t.id, t.name]));
+    }
+
+    return rooms.map((r) =>
+      this.toRoomDto(r, r.teamId ? nameMap.get(r.teamId) : undefined),
+    );
   }
 
   // ── Get or create TEAM room ───────────────────────────────────────────────
@@ -95,7 +108,7 @@ export class ChatService {
       }))!;
     }
 
-    return this.toRoomDto(room);
+    return this.toRoomDto(room, team.name);
   }
 
   // ── Get or create DIRECT room ─────────────────────────────────────────────
@@ -186,11 +199,12 @@ export class ChatService {
 
   // ── Private helpers ───────────────────────────────────────────────────────
 
-  private toRoomDto(room: ChatRoom): ChatRoomDto {
+  private toRoomDto(room: ChatRoom, teamName?: string): ChatRoomDto {
     return {
       id: room.id,
       type: room.type,
       ...(room.teamId ? { teamId: room.teamId } : {}),
+      ...(teamName ? { teamName } : {}),
       members: (room.members ?? []).map((u) => ({
         id: u.id,
         firstName: u.firstName,

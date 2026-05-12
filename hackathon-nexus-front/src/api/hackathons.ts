@@ -53,46 +53,32 @@ export interface ListHackathonsParams {
   search?: string;
   notStarted?: boolean;
   notEnded?: boolean;
+  registeredOnly?: boolean;
   page?: number;
   limit?: number;
 }
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
-
-async function request<T>(path: string, token: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-      ...init?.headers,
-    },
-    ...init,
-  });
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error((body as { message?: string }).message ?? `Request failed: ${res.status}`);
-  }
-  if (res.status === 204) return undefined as T;
-  return res.json() as Promise<T>;
-}
+import { request } from "./client";
 
 export async function listHackathons(
-  token: string,
+  token: string | null | undefined,
   params: ListHackathonsParams = {},
 ): Promise<HackathonsPage> {
-  const url = new URL(`${API_BASE}/hackathons`);
-  if (params.topic) url.searchParams.set("topic", params.topic);
-  if (params.search) url.searchParams.set("search", params.search);
-  if (params.notStarted) url.searchParams.set("notStarted", "true");
-  if (params.notEnded) url.searchParams.set("notEnded", "true");
-  if (params.page) url.searchParams.set("page", String(params.page));
-  if (params.limit) url.searchParams.set("limit", String(params.limit));
+  const qs = new URLSearchParams();
+  if (params.topic) qs.set("topic", params.topic);
+  if (params.search) qs.set("search", params.search);
+  if (params.notStarted) qs.set("notStarted", "true");
+  if (params.notEnded) qs.set("notEnded", "true");
+  if (params.registeredOnly) qs.set("registeredOnly", "true");
+  if (params.page) qs.set("page", String(params.page));
+  if (params.limit) qs.set("limit", String(params.limit));
+  const query = qs.toString() ? `?${qs}` : "";
 
-  return request<HackathonsPage>(url.pathname + url.search, token);
+  return request<HackathonsPage>(`/hackathons${query}`, token ?? undefined);
 }
 
-export function getHackathon(token: string, id: string): Promise<HackathonDto> {
-  return request<HackathonDto>(`/hackathons/${id}`, token);
+export function getHackathon(token: string | null, id: string): Promise<HackathonDto> {
+  return request<HackathonDto>(`/hackathons/${id}`, token ?? undefined);
 }
 
 export function registerForHackathon(token: string, id: string): Promise<HackathonDto> {

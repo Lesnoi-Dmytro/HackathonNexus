@@ -1,23 +1,23 @@
 import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+    type ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
 import { getNotifications, markNotificationRead, type NotificationDto } from "../api/notifications";
 import { notificationText, type AppNotification } from "../api/notifications.types";
 import { connectSocket, disconnectSocket } from "../services/socketService";
 import {
-  Toast,
-  ToastClose,
-  ToastDescription,
-  ToastProvider,
-  ToastTitle,
-  ToastViewport,
+    Toast,
+    ToastClose,
+    ToastDescription,
+    ToastProvider,
+    ToastTitle,
+    ToastViewport,
 } from "../shared/ui/Toast";
 
 /* ── Toast state ─────────────────────────────────────────────── */
@@ -111,16 +111,10 @@ export function NotificationsProvider({ token, children }: Props) {
     const socket = connectSocket(token);
 
     socket.on("notification", (payload) => {
-      // Prepend as an unread notification so the bell updates immediately
-      const fake: NotificationDto = {
-        id: `ws-${Date.now()}`,
-        payload,
-        read: false,
-        createdAt: new Date().toISOString(),
-      };
-      setNotifications((prev) => [fake, ...prev]);
+      // Re-fetch so the notification has a real UUID from the server
+      fetchNotifications();
 
-      // Fire a toast
+      // Fire a toast immediately without waiting for the fetch
       const { title, variant } = toastForNotification(payload, t);
       addToast(title, notificationText(payload, t), variant);
     });

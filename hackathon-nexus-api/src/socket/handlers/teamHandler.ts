@@ -6,11 +6,11 @@ import { TeamRequest } from "../../entities/TeamRequest";
 import { TeamRequestStatus, TeamRequestType, UserRole } from "../../models/enums";
 import { sendNotification } from "../sendNotification";
 import {
-  AuthenticatedSocket,
-  ClientToServerEvents,
-  InterServerEvents,
-  ServerToClientEvents,
-  SocketData,
+    AuthenticatedSocket,
+    ClientToServerEvents,
+    InterServerEvents,
+    ServerToClientEvents,
+    SocketData,
 } from "../types";
 
 type IoServer = Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
@@ -65,8 +65,10 @@ export function registerTeamHandlers(io: IoServer, socket: AuthenticatedSocket):
         requestId: saved.id,
         teamId: team.id,
         teamName: team.name,
+        hackathonId: team.hackathon.id,
         participant: {
           id: participant.id,
+          userId: socket.user.id,
           firstName: socket.user.firstName,
           lastName: socket.user.lastName,
           position: participant.position,
@@ -87,6 +89,7 @@ export function registerTeamHandlers(io: IoServer, socket: AuthenticatedSocket):
         where: { id: requestId, type: TeamRequestType.JOIN_REQUEST },
         relations: [
           "team",
+          "team.hackathon",
           "team.leader",
           "team.leader.user",
           "team.members",
@@ -121,6 +124,7 @@ export function registerTeamHandlers(io: IoServer, socket: AuthenticatedSocket):
           requestId: request.id,
           teamId: request.team.id,
           teamName: request.team.name,
+          hackathonId: request.team.hackathon.id,
         });
       } else {
         await sendNotification(io, request.participant.user.id, {
@@ -128,6 +132,7 @@ export function registerTeamHandlers(io: IoServer, socket: AuthenticatedSocket):
           requestId: request.id,
           teamId: request.team.id,
           teamName: request.team.name,
+          hackathonId: request.team.hackathon.id,
         });
       }
 
@@ -186,8 +191,10 @@ export function registerTeamHandlers(io: IoServer, socket: AuthenticatedSocket):
         requestId: saved.id,
         teamId: team.id,
         teamName: team.name,
+        hackathonId: team.hackathon.id,
         leader: {
           id: socket.participant?.id ?? "",
+          userId: socket.user.id,
           firstName: socket.user.firstName,
           lastName: socket.user.lastName,
         },
@@ -211,7 +218,7 @@ export function registerTeamHandlers(io: IoServer, socket: AuthenticatedSocket):
 
       const request = await requestRepo.findOne({
         where: { id: requestId, type: TeamRequestType.INVITE },
-        relations: ["team", "team.leader", "team.leader.user", "team.members", "participant"],
+        relations: ["team", "team.hackathon", "team.leader", "team.leader.user", "team.members", "participant"],
       });
 
       if (!request) return ack("Invite not found");
@@ -239,6 +246,7 @@ export function registerTeamHandlers(io: IoServer, socket: AuthenticatedSocket):
           type: "team:invite:accepted",
           requestId: request.id,
           teamId: request.team.id,
+          hackathonId: request.team.hackathon.id,
           participant: {
             id: participant.id,
             firstName: socket.user.firstName,
@@ -250,6 +258,7 @@ export function registerTeamHandlers(io: IoServer, socket: AuthenticatedSocket):
           type: "team:invite:rejected",
           requestId: request.id,
           teamId: request.team.id,
+          hackathonId: request.team.hackathon.id,
           participant: {
             id: participant.id,
             firstName: socket.user.firstName,

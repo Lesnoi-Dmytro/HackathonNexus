@@ -301,8 +301,14 @@ class TeamCompletionRF:
         top_pos_ids = po_proba.argsort()[::-1][:top_k_positions].tolist()
 
         return {
-            "recommended_skills": [ALL_SKILLS[i] for i in top_skill_ids],
-            "recommended_positions": [ALL_POSITIONS[i] for i in top_pos_ids],
+            "recommended_skills": [
+                {"skill": ALL_SKILLS[i], "score": round(float(sk_proba[i]), 4)}
+                for i in top_skill_ids
+            ],
+            "recommended_positions": [
+                {"position": ALL_POSITIONS[i], "score": round(float(po_proba[i]), 4)}
+                for i in top_pos_ids
+            ],
         }
 
     def save(self, path: str | Path) -> None:

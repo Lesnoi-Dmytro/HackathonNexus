@@ -1,21 +1,21 @@
 import {
-  Authorized,
-  Body,
-  CurrentUser,
-  Delete,
-  Get,
-  HttpCode,
-  JsonController,
-  Param,
-  Patch,
-  Post,
-  QueryParams,
+    Authorized,
+    Body,
+    CurrentUser,
+    Delete,
+    Get,
+    HttpCode,
+    JsonController,
+    Param,
+    Patch,
+    Post,
+    QueryParams,
 } from "routing-controllers";
 import { OpenAPI } from "routing-controllers-openapi";
 import {
-  CreateHackathonDto,
-  ListHackathonsQueryDto,
-  UpdateHackathonDto,
+    CreateHackathonDto,
+    ListHackathonsQueryDto,
+    UpdateHackathonDto,
 } from "../dto/hackathon.dto";
 import { HackathonDto, HackathonsPageDto } from "../dto/response.dto";
 import { User } from "../entities/User";
@@ -27,10 +27,8 @@ export class HackathonController {
   private readonly hackathonService = new HackathonService();
 
   @Get("/")
-  @Authorized()
   @OpenAPI({
     summary: "List hackathons with optional filters and pagination",
-    security: [{ bearerAuth: [] }],
     responses: {
       "200": {
         description: "Paginated list of hackathons",
@@ -38,21 +36,18 @@ export class HackathonController {
           "application/json": { schema: { $ref: "#/components/schemas/HackathonsPageDto" } },
         },
       },
-      "401": { description: "Unauthorized" },
     },
   })
   async list(
     @QueryParams() query: ListHackathonsQueryDto,
-    @CurrentUser({ required: true }) user: User,
+    @CurrentUser({ required: false }) user: User | null,
   ): Promise<HackathonsPageDto> {
     return this.hackathonService.list(query, user);
   }
 
   @Get("/:id")
-  @Authorized()
   @OpenAPI({
     summary: "Get a single hackathon by ID",
-    security: [{ bearerAuth: [] }],
     responses: {
       "200": {
         description: "Hackathon detail",
@@ -60,13 +55,12 @@ export class HackathonController {
           "application/json": { schema: { $ref: "#/components/schemas/HackathonDto" } },
         },
       },
-      "401": { description: "Unauthorized" },
       "404": { description: "Hackathon not found" },
     },
   })
   async getOne(
     @Param("id") id: string,
-    @CurrentUser({ required: true }) user: User,
+    @CurrentUser({ required: false }) user: User | null,
   ): Promise<HackathonDto> {
     return this.hackathonService.getOne(id, user);
   }

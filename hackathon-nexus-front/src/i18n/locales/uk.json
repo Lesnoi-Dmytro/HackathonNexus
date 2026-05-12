@@ -58,6 +58,7 @@
     "title": "Хакатони",
     "upcoming": "Майбутні",
     "ongoing": "Активні",
+    "myHackathons": "Мої хакатони",
     "searchPlaceholder": "Пошук хакатонів…",
     "all": "Всі",
     "noHackathons": "Хакатонів не знайдено.",
@@ -103,14 +104,42 @@
     "creating": "Створення…",
     "create": "Створити",
     "orFindTeam": "Або знайдіть існуючу команду",
-    "browseTeams": "Переглянути команди"
+    "browseTeams": "Переглянути команди",
+    "deleteTeam": "Видалити команду",
+    "confirmDelete": "Ви впевнені, що хочете видалити цю команду? Цю дію неможливо скасувати.",
+    "teamDeleted": "Команду видалено",
+    "kick": "Вигнати",
+    "confirmKick": "Ви впевнені, що хочете вигнати {{name}}?",
+    "kicked": "Учасника вигнано",
+    "pendingRequests": "Запити на вступ",
+    "pendingInvites": "Запрошення",
+    "accept": "Прийняти",
+    "reject": "Відхилити",
+    "requestAccepted": "Запит прийнято",
+    "requestRejected": "Запит відхилено",
+    "requestRespondFailed": "Не вдалося відповісти на запит",
+    "inviteAccepted": "Запрошення прийнято",
+    "inviteRejected": "Запрошення відхилено",
+    "inviteRespondFailed": "Не вдалося відповісти на запрошення"
   },
   "teamSearch": {
     "back": "До управління командою",
     "title": "Знайти команду",
     "searchPlaceholder": "Пошук команд…",
     "loadingTeams": "Завантаження команд…",
-    "noTeams": "Команд не знайдено. Будьте першим, хто створить!"
+    "noTeams": "Команд не знайдено. Будьте першим, хто створить!",
+    "prev": "Попередня",
+    "next": "Наступна",
+    "total": "({{count}} всього)"
+  },
+  "filters": {
+    "toggle": "Фільтри",
+    "clearAll": "Очистити все",
+    "positions": "Позиції",
+    "skills": "Навички",
+    "minExperience": "Мін. роки досвіду",
+    "minExperiencePlaceholder": "напр. 2",
+    "skillsSearchPlaceholder": "Пошук навичок…"
   },
   "chat": {
     "sidebarTitle": "Повідомлення",
@@ -136,6 +165,8 @@
     "teamRoom_other": "Команда · {{count}} учасника",
     "directMessage": "Особисте повідомлення",
     "sendDm": "Надіслати ОП",
+    "kickMember": "Вигнати з команди",
+    "confirmKick": "Ви впевнені, що хочете вигнати {{name}} з команди?",
     "errorLoadRooms": "Не вдалося завантажити чати",
     "errorLoadMessages": "Не вдалося завантажити повідомлення",
     "errorLoadMore": "Не вдалося завантажити старіші повідомлення",
@@ -151,5 +182,26 @@
     "maxTeamSize": "макс {{count}}",
     "registered": "Зареєстровано",
     "full": "· Повна"
+  },
+  "userProfile": {
+    "notFound": "Користувача не знайдено",
+    "startChat": "Написати",
+    "opening": "Відкриття…",
+    "chatError": "Не вдалося відкрити чат",
+    "experienceTitle": "Досвід",
+    "yearsOfExperience": "р. досвіду",
+    "skillsTitle": "Навички",
+    "noParticipantData": "Цей користувач ще не заповнив профіль учасника.",
+    "editProfile": "Редагувати профіль",
+    "saveProfile": "Зберегти",
+    "cancelEdit": "Скасувати",
+    "positionLabel": "Позиція",
+    "positionPlaceholder": "Оберіть позицію",
+    "yearsLabel": "Роки досвіду",
+    "experienceLabel": "Про себе / досвід",
+    "experiencePlaceholder": "Опишіть ваш досвід…",
+    "skillsLabel": "Навички",
+    "saveError": "Не вдалося зберегти профіль",
+    "saveSuccess": "Профіль оновлено"
   }
 }

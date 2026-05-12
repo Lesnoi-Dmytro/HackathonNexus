@@ -5,8 +5,10 @@ export interface JoinRequestNotification {
   requestId: string;
   teamId: string;
   teamName: string;
+  hackathonId: string;
   participant: {
     id: string;
+    userId: string;
     firstName: string;
     lastName: string;
     position?: Position;
@@ -19,6 +21,7 @@ export interface JoinRequestAcceptedNotification {
   requestId: string;
   teamId: string;
   teamName: string;
+  hackathonId: string;
 }
 
 export interface JoinRequestRejectedNotification {
@@ -26,6 +29,7 @@ export interface JoinRequestRejectedNotification {
   requestId: string;
   teamId: string;
   teamName: string;
+  hackathonId: string;
 }
 
 export interface InviteNotification {
@@ -33,13 +37,15 @@ export interface InviteNotification {
   requestId: string;
   teamId: string;
   teamName: string;
-  leader: { id: string; firstName: string; lastName: string };
+  hackathonId: string;
+  leader: { id: string; userId: string; firstName: string; lastName: string };
 }
 
 export interface InviteAcceptedNotification {
   type: "team:invite:accepted";
   requestId: string;
   teamId: string;
+  hackathonId: string;
   participant: { id: string; firstName: string; lastName: string };
 }
 
@@ -47,6 +53,7 @@ export interface InviteRejectedNotification {
   type: "team:invite:rejected";
   requestId: string;
   teamId: string;
+  hackathonId: string;
   participant: { id: string; firstName: string; lastName: string };
 }
 

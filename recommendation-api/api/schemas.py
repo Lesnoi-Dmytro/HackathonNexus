@@ -7,7 +7,7 @@ from entities.positions import ALL_POSITIONS
 
 class TeamMember(BaseModel):
     skills: list[str] = Field(default_factory=list, description="Skills the member has")
-    position: str = Field(..., description="Member's role/position")
+    position: str | None = Field(default=None, description="Member's role/position")
     experience_years: float = Field(default=0.0, ge=0.0, description="Years of experience")
 
 

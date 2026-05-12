@@ -1,5 +1,15 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from "class-validator";
-import { UserRole } from "../models/enums";
+import {
+  IsArray,
+  IsEmail,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+  MinLength,
+} from "class-validator";
+import { Position, Skill, UserRole } from "../models/enums";
 
 export class RegisterDto {
   @IsString()
@@ -28,4 +38,24 @@ export class LoginDto {
   @IsString()
   @IsNotEmpty()
   password!: string;
+}
+
+export class UpdateParticipantDto {
+  @IsOptional()
+  @IsArray()
+  @IsEnum(Skill, { each: true })
+  skills?: Skill[];
+
+  @IsOptional()
+  @IsEnum(Position)
+  position?: Position;
+
+  @IsOptional()
+  @IsString()
+  experience?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  yearsOfExperience?: number;
 }

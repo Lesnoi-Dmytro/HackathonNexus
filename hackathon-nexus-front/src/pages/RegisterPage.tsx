@@ -35,7 +35,7 @@ export function RegisterPage() {
     try {
       const { accessToken, user } = await register({ firstName, lastName, email, password, role });
       setAuth(accessToken, user);
-      navigate("/hackathons", { replace: true });
+      navigate(role === "participant" ? `/users/${user.id}?edit=1` : "/hackathons", { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : t("auth.registrationFailed"));
     } finally {

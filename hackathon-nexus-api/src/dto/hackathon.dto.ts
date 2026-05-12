@@ -1,13 +1,13 @@
 import { Transform, Type } from "class-transformer";
 import {
-  IsBoolean,
-  IsDate,
-  IsEnum,
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Min,
+    IsBoolean,
+    IsDate,
+    IsEnum,
+    IsInt,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
+    Min,
 } from "class-validator";
 import { HackathonTopic } from "../models/enums";
 
@@ -32,6 +32,12 @@ export class ListHackathonsQueryDto {
   @Transform(({ value }) => value === "true" || value === true)
   @IsBoolean()
   notEnded?: boolean;
+
+  /** When true, only return hackathons the current user is registered for */
+  @IsOptional()
+  @Transform(({ value }) => value === "true" || value === true)
+  @IsBoolean()
+  registeredOnly?: boolean;
 
   @IsOptional()
   @Type(() => Number)

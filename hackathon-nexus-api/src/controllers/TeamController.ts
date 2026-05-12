@@ -2,6 +2,7 @@ import {
   Authorized,
   Body,
   CurrentUser,
+  Delete,
   Get,
   HttpCode,
   JsonController,
@@ -14,6 +15,7 @@ import { OpenAPI } from "routing-controllers-openapi";
 import {
   MembersRecommendResponseDto,
   TeamDto,
+  TeamRequestItemDto,
   TeamsRecommendResponseDto,
 } from "../dto/response.dto";
 import { CreateTeamDto, FindMembersQueryDto, FindTeamsQueryDto } from "../dto/team.dto";
@@ -98,6 +100,20 @@ export class TeamController {
     return this.teamService.getMyTeam(hackathonId, user);
   }
 
+  @Get("/invites")
+  @OpenAPI({
+    summary: "Get pending team invitations for the current participant",
+    security: [{ bearerAuth: [] }],
+    responses: {
+      "200": { description: "List of pending invites" },
+    },
+  })
+  async getMyInvites(
+    @CurrentUser({ required: true }) user: User,
+  ): Promise<TeamRequestItemDto[]> {
+    return this.teamService.getMyInvites(user);
+  }
+
   @Get("/recommend")
   @OpenAPI({
     summary: "Find teams for a participant (with AI recommendations)",
@@ -128,6 +144,23 @@ export class TeamController {
     return this.teamService.findTeams(query, user);
   }
 
+  @Get("/:id/requests")
+  @OpenAPI({
+    summary: "Get pending join requests for a team (leader only)",
+    security: [{ bearerAuth: [] }],
+    responses: {
+      "200": { description: "List of pending join requests" },
+      "403": { description: "Forbidden — only the team leader can view" },
+      "404": { description: "Team not found" },
+    },
+  })
+  async getTeamRequests(
+    @Param("id") id: string,
+    @CurrentUser({ required: true }) user: User,
+  ): Promise<TeamRequestItemDto[]> {
+    return this.teamService.getTeamRequests(id, user);
+  }
+
   @Get("/:id/recommend-members")
   @OpenAPI({
     summary: "Find available participants for a team (with AI recommendations)",
@@ -155,5 +188,50 @@ export class TeamController {
     @QueryParams() query: FindMembersQueryDto,
   ): Promise<MembersRecommendResponseDto> {
     return this.teamService.findMembers(id, query);
+  }
+
+  @Delete("/:id/members/:participantId")
+  @HttpCode(200)
+  @OpenAPI({
+    summary: "Kick a member from a team (leader only)",
+    security: [{ bearerAuth: [] }],
+    responses: {
+      "200": {
+        description: "Updated team",
+        content: {
+          "application/json": { schema: { $ref: "#/components/schemas/TeamDto" } },
+        },
+      },
+      "400": { description: "Cannot kick the leader" },
+      "401": { description: "Unauthorized" },
+      "403": { description: "Forbidden — only the team leader can kick" },
+      "404": { description: "Team or member not found" },
+    },
+  })
+  async kickMember(
+    @Param("id") id: string,
+    @Param("participantId") participantId: string,
+    @CurrentUser({ required: true }) user: User,
+  ): Promise<TeamDto> {
+    return this.teamService.kickMember(id, participantId, user);
+  }
+
+  @Delete("/:id")
+  @HttpCode(204)
+  @OpenAPI({
+    summary: "Delete a team (leader only)",
+    security: [{ bearerAuth: [] }],
+    responses: {
+      "204": { description: "Team deleted" },
+      "401": { description: "Unauthorized" },
+      "403": { description: "Forbidden — only the team leader can delete" },
+      "404": { description: "Team not found" },
+    },
+  })
+  async deleteTeam(
+    @Param("id") id: string,
+    @CurrentUser({ required: true }) user: User,
+  ): Promise<void> {
+    return this.teamService.delete(id, user);
   }
 }

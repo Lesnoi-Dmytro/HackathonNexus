@@ -1,8 +1,8 @@
 import { AppDataSource } from "../data-source";
 import {
-  CreateHackathonDto,
-  ListHackathonsQueryDto,
-  UpdateHackathonDto,
+    CreateHackathonDto,
+    ListHackathonsQueryDto,
+    UpdateHackathonDto,
 } from "../dto/hackathon.dto";
 import { HackathonDto, HackathonsPageDto } from "../dto/response.dto";
 import { Hackathon } from "../entities/Hackathon";
@@ -45,9 +45,9 @@ export class HackathonService {
   private readonly repo = AppDataSource.getRepository(Hackathon);
   private readonly participantRepo = AppDataSource.getRepository(Participant);
 
-  /** Resolve the current user's participant profile, or null for admins. */
-  private async resolveParticipantId(user: User): Promise<string | null> {
-    if (user.role !== UserRole.PARTICIPANT) return null;
+  /** Resolve the current user's participant profile, or null for admins/unauthenticated. */
+  private async resolveParticipantId(user: User | null): Promise<string | null> {
+    if (!user || user.role !== UserRole.PARTICIPANT) return null;
     const p = await this.participantRepo.findOne({ where: { user: { id: user.id } } });
     return p?.id ?? null;
   }
@@ -86,7 +86,7 @@ export class HackathonService {
     return { countMap, registeredSet };
   }
 
-  async list(query: ListHackathonsQueryDto, user: User): Promise<HackathonsPageDto> {
+  async list(query: ListHackathonsQueryDto, user: User | null): Promise<HackathonsPageDto> {
     const page = query.page ?? 1;
     const limit = query.limit ?? 12;
     const now = new Date();
@@ -115,6 +115,25 @@ export class HackathonService {
       });
     }
 
+    if (query.registeredOnly) {
+      const participantId = user ? await this.resolveParticipantId(user) : null;
+      if (participantId) {
+        qb.andWhere(
+          (qb2) =>
+            `EXISTS (${qb2
+              .subQuery()
+              .select("1")
+              .from("hackathon_registrations", "hr_filter")
+              .where("hr_filter.hackathonId = hackathon.id")
+              .andWhere("hr_filter.participantId = :regPid", { regPid: participantId })
+              .getQuery()})`,
+        );
+      } else {
+        // Non-participants have no registrations — return empty
+        return { data: [], total: 0, page, limit };
+      }
+    }
+
     const [rows, total] = await qb
       .skip((page - 1) * limit)
       .take(limit)
@@ -139,7 +158,7 @@ export class HackathonService {
     };
   }
 
-  async getOne(id: string, user: User): Promise<HackathonDto> {
+  async getOne(id: string, user: User | null): Promise<HackathonDto> {
     const hackathon = await this.repo.findOne({
       where: { id },
       relations: ["createdBy"],

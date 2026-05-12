@@ -1,51 +1,36 @@
 import {
-    Calendar,
-    CheckCircle,
-    ChevronLeft,
-    Clock,
-    Code2,
-    Flag,
-    Radio,
-    Ticket,
-    Users,
+  Calendar,
+  CheckCircle,
+  ChevronLeft,
+  Clock,
+  Code2,
+  Flag,
+  Radio,
+  Ticket,
+  Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
-    getHackathon,
-    registerForHackathon,
-    unregisterFromHackathon,
-    type HackathonDto,
+  getHackathon,
+  registerForHackathon,
+  unregisterFromHackathon,
+  type HackathonDto,
 } from "../api/hackathons";
 import { MetaCard } from "../components/hackathon/MetaCard";
 import { useAuth } from "../contexts/AuthContext";
 import { useNotifications } from "../contexts/NotificationsContext";
+import { formatDateLong } from "../shared/formatDate";
 import { Button } from "../shared/ui/Button";
 import styles from "./HackathonDetailPage.module.css";
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function endDate(startIso: string, durationHours: number): string {
-  const d = new Date(startIso);
-  d.setHours(d.getHours() + durationHours);
-  return formatDate(d.toISOString());
-}
 
 export function HackathonDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { token, user } = useAuth();
   const { toast } = useNotifications();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [hackathon, setHackathon] = useState<HackathonDto | null>(null);
   const [loadingHackathon, setLoadingHackathon] = useState(true);
@@ -55,7 +40,7 @@ export function HackathonDetailPage() {
   const isParticipant = user?.role === "participant";
 
   useEffect(() => {
-    if (!token || !id) return;
+    if (!id) return;
     setLoadingHackathon(true);
     getHackathon(token, id)
       .then(setHackathon)
@@ -141,12 +126,12 @@ export function HackathonDetailPage() {
         <MetaCard
           icon={<Calendar size={18} />}
           label={t("hackathonDetail.starts")}
-          value={formatDate(hackathon.startDate)}
+          value={formatDateLong(hackathon.startDate, i18n.language)}
         />
         <MetaCard
           icon={<Flag size={18} />}
           label={t("hackathonDetail.ends")}
-          value={endDate(hackathon.startDate, hackathon.durationHours)}
+          value={formatDateLong(new Date(new Date(hackathon.startDate).getTime() + hackathon.durationHours * 3_600_000).toISOString(), i18n.language)}
         />
         <MetaCard
           icon={<Clock size={18} />}

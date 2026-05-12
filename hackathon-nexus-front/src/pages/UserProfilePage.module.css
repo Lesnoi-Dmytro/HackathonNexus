@@ -1,0 +1,400 @@
+.page {
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  color: var(--color-text, #fff);
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-muted, #888);
+  font-size: 0.85rem;
+  padding: 0;
+  margin-bottom: 1.5rem;
+  transition: color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.backBtn:hover {
+  color: var(--color-text, #fff);
+}
+
+/* ── State screens ── */
+.state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 1rem;
+  color: var(--color-muted, #888);
+}
+.stateError {
+  color: #f87171;
+}
+
+/* ── Profile card ── */
+.profileCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background: var(--color-surface, #1a1a1a);
+  border: 1px solid var(--color-border, #2a2a2a);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.avatarSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-primary, #646cff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.nameSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.name {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-text, #fff);
+}
+
+.position {
+  font-size: 0.85rem;
+  color: var(--color-muted, #888);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.chatBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+/* ── Content sections ── */
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.section {
+  background: var(--color-surface, #1a1a1a);
+  border: 1px solid var(--color-border, #2a2a2a);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Experience */
+.experienceGrid {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.expCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--color-border, #2a2a2a);
+  border-radius: 8px;
+  padding: 0.65rem 1.25rem;
+  min-width: 80px;
+}
+
+.expValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary, #646cff);
+  line-height: 1;
+}
+
+.expLabel {
+  font-size: 0.7rem;
+  color: var(--color-muted, #888);
+  margin-top: 0.25rem;
+  text-align: center;
+}
+
+.experienceText {
+  font-size: 0.875rem;
+  color: var(--color-text, #fff);
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+  text-align: start;
+}
+
+/* Skills */
+.skillsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.skillChip {
+  font-size: 0.78rem;
+  background: var(--color-border, #2a2a2a);
+  color: var(--color-muted, #ccc);
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid transparent;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.skillChip:hover {
+  border-color: var(--color-primary, #646cff);
+  color: var(--color-primary, #646cff);
+}
+
+/* Empty state */
+.emptyProfile {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-muted, #888);
+  font-size: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Profile actions (edit / chat buttons) */
+.profileActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.editBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ── Edit form ── */
+.editForm {
+  background: var(--color-surface, #1a1a1a);
+  border: 1px solid var(--color-border, #2a2a2a);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.editFormHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.editFormTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-text, #fff);
+}
+
+.closeEditBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-muted, #888);
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+.closeEditBtn:hover {
+  color: var(--color-text, #fff);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.formLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.formSelect,
+.formInput {
+  background: var(--color-bg, #0f0f0f);
+  border: 1px solid var(--color-border, #2a2a2a);
+  border-radius: 6px;
+  color: var(--color-text, #fff);
+  font-size: 0.875rem;
+  padding: 0.55rem 0.75rem;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.formSelect:focus,
+.formInput:focus {
+  border-color: var(--color-primary, #646cff);
+}
+.formSelect option {
+  background: var(--color-bg, #0f0f0f);
+}
+
+.formTextarea {
+  background: var(--color-bg, #0f0f0f);
+  border: 1px solid var(--color-border, #2a2a2a);
+  border-radius: 6px;
+  color: var(--color-text, #fff);
+  font-size: 0.875rem;
+  padding: 0.55rem 0.75rem;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+.formTextarea:focus {
+  border-color: var(--color-primary, #646cff);
+}
+
+/* Selected skill chips */
+.selectedSkills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.4rem;
+}
+
+.selectedSkillChip {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  background: var(--color-primary, #646cff);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem 0.15rem 0.65rem;
+}
+
+.removeSkillBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  border-radius: 50%;
+  transition: color 0.15s;
+}
+.removeSkillBtn:hover {
+  color: #fff;
+}
+
+/* Skill checkbox list */
+.skillCheckboxList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.25rem;
+  max-height: 240px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border, #2a2a2a);
+  border-radius: 6px;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.skillCheckboxItem {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--color-text, #fff);
+  cursor: pointer;
+  padding: 0.2rem 0.3rem;
+  border-radius: 4px;
+  transition: background 0.1s;
+}
+.skillCheckboxItem:hover {
+  background: var(--color-border, #2a2a2a);
+}
+.skillCheckboxItem input[type="checkbox"] {
+  accent-color: var(--color-primary, #646cff);
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.editFormActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 1rem;
+  }
+  .profileCard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .chatBtn,
+  .editBtn {
+    width: 100%;
+    justify-content: center;
+  }
+  .skillCheckboxList {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  }
+}

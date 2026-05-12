@@ -1,12 +1,12 @@
-// Mirror of the backend AppNotification discriminated union (payload shapes only)
-
 export interface JoinRequestNotification {
   type: "team:join-request";
   requestId: string;
   teamId: string;
   teamName: string;
+  hackathonId: string;
   participant: {
     id: string;
+    userId: string;
     firstName: string;
     lastName: string;
     position?: string;
@@ -19,6 +19,7 @@ export interface JoinRequestAcceptedNotification {
   requestId: string;
   teamId: string;
   teamName: string;
+  hackathonId: string;
 }
 
 export interface JoinRequestRejectedNotification {
@@ -26,6 +27,7 @@ export interface JoinRequestRejectedNotification {
   requestId: string;
   teamId: string;
   teamName: string;
+  hackathonId: string;
 }
 
 export interface InviteNotification {
@@ -33,13 +35,15 @@ export interface InviteNotification {
   requestId: string;
   teamId: string;
   teamName: string;
-  leader: { id: string; firstName: string; lastName: string };
+  hackathonId: string;
+  leader: { id: string; userId: string; firstName: string; lastName: string };
 }
 
 export interface InviteAcceptedNotification {
   type: "team:invite:accepted";
   requestId: string;
   teamId: string;
+  hackathonId: string;
   participant: { id: string; firstName: string; lastName: string };
 }
 
@@ -47,6 +51,7 @@ export interface InviteRejectedNotification {
   type: "team:invite:rejected";
   requestId: string;
   teamId: string;
+  hackathonId: string;
   participant: { id: string; firstName: string; lastName: string };
 }
 
@@ -89,5 +94,38 @@ export function notificationText(
         firstName: n.participant.firstName,
         lastName: n.participant.lastName,
       });
+  }
+}
+
+/** Returns a secondary entity link shown inline in the notification (profile or team page). */
+export function notificationEntityLink(
+  n: AppNotification,
+): { label: string; url: string } | null {
+  switch (n.type) {
+    case "team:join-request":
+      return {
+        label: `${n.participant.firstName} ${n.participant.lastName}`,
+        url: `/users/${n.participant.userId}`,
+      };
+    case "team:invite":
+      return {
+        label: n.teamName,
+        url: `/hackathons/${n.hackathonId}/team`,
+      };
+    default:
+      return null;
+  }
+}
+export function notificationLink(n: AppNotification): string | null {
+  switch (n.type) {
+    // Leader gets this → go to team management to handle the pending request
+    case "team:join-request":
+      return `/hackathons/${n.hackathonId}/team`;
+    // Participant gets this → go to team management to accept/reject the invite
+    case "team:invite":
+      return `/hackathons/${n.hackathonId}/team`;
+    // Informational notifications — no navigation needed
+    default:
+      return null;
   }
 }

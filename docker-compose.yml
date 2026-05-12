@@ -37,7 +37,7 @@ services:
       PORT: "3000"
       DB_HOST: postgres
       DB_PORT: "5432"
-      RECOMMEND_API_URL: "http://recommendation-api:8000"
+      RECOMMEND_API_URL: "http://recommendation-api:8000/api"
     depends_on:
       postgres:
         condition: service_healthy
@@ -48,11 +48,19 @@ services:
     build:
       context: ./hackathon-nexus-front
       args:
-        VITE_API_URL: "http://localhost:3000"
+        VITE_API_URL: "http://localhost:3000/api"
     ports:
       - "${FRONT_PORT:-5173}:80"
     depends_on:
       - hackathon-nexus-api
+
+  redis-ui:
+    image: redis/redisinsight:latest
+    ports:
+      - "${REDIS_UI_PORT:-5540}:5540"
+    depends_on:
+      redis:
+        condition: service_healthy
 
   recommendation-api:
     build: ./recommendation-api

@@ -5,13 +5,17 @@ import {
   MembersRecommendResponseDto,
   TeamDto,
   TeamMemberDto,
+  TeamRequestItemDto,
+  TeamRequestParticipantDto,
   TeamsRecommendResponseDto,
 } from "../dto/response.dto";
 import { CreateTeamDto, FindMembersQueryDto, FindTeamsQueryDto } from "../dto/team.dto";
 import { Hackathon } from "../entities/Hackathon";
 import { Participant } from "../entities/Participant";
 import { Team } from "../entities/Team";
+import { TeamRequest } from "../entities/TeamRequest";
 import { User } from "../entities/User";
+import { TeamRequestStatus, TeamRequestType } from "../models/enums";
 
 function toTeamDto(team: Team): TeamDto {
   const dto = new TeamDto();
@@ -22,6 +26,7 @@ function toTeamDto(team: Team): TeamDto {
   dto.members = team.members.map((p) => {
     const m = new TeamMemberDto();
     m.id = p.id;
+    m.userId = p.user.id;
     m.firstName = p.user.firstName;
     m.lastName = p.user.lastName;
     m.position = p.position;
@@ -38,6 +43,7 @@ export class TeamService {
   private readonly teamRepo = AppDataSource.getRepository(Team);
   private readonly hackathonRepo = AppDataSource.getRepository(Hackathon);
   private readonly participantRepo = AppDataSource.getRepository(Participant);
+  private readonly requestRepo = AppDataSource.getRepository(TeamRequest);
 
   private async resolveParticipant(user: User): Promise<Participant> {
     const participant = await this.participantRepo.findOne({
@@ -169,21 +175,33 @@ export class TeamService {
       throw err;
     }
 
-    const participant = await this.participantRepo.findOne({
-      where: { user: { id: user.id } },
-    });
-    if (!participant) {
-      const err: any = new Error("Participant profile not found");
-      err.httpCode = 422;
-      throw err;
-    }
-
     const hasSkillFilter = (query.skills?.length ?? 0) > 0;
     const hasPositionFilter = (query.positions?.length ?? 0) > 0;
-    const hasFilters = hasSkillFilter || hasPositionFilter;
 
-    let recommendedSkills: { skill: string; score: number }[] | undefined;
-    let recommendedPositions: { position: string; score: number }[] | undefined;
+    let scoreSkills: string[] | undefined = hasSkillFilter ? (query.skills as string[]) : undefined;
+    let scorePositions: string[] | undefined = hasPositionFilter
+      ? (query.positions as string[])
+      : undefined;
+
+    if (!hasSkillFilter || !hasPositionFilter) {
+      try {
+        const participant = await this.participantRepo.findOne({ where: { user: { id: user.id } } });
+        if (participant) {
+          const rec = await fetchRecommendations(
+            hackathon.topic,
+            hackathon.maxTeamSize,
+            [{ skills: participant.skills, position: participant.position }],
+          );
+          if (!hasSkillFilter) scoreSkills = rec.recommended_skills.map((s) => s.skill);
+          if (!hasPositionFilter) scorePositions = rec.recommended_positions.map((p) => p.position);
+        }
+      } catch {
+      }
+    }
+
+    const hasScoreSkills = (scoreSkills?.length ?? 0) > 0;
+    const hasScorePositions = (scorePositions?.length ?? 0) > 0;
+    const hasScoring = hasScoreSkills || hasScorePositions;
 
     const params: any[] = [query.hackathonId, hackathon.maxTeamSize];
     let next = 3;
@@ -195,19 +213,21 @@ export class TeamService {
     let memberScoreExpr: string;
     let filterExistsCond = "";
 
-    if (hasFilters) {
-      const skillRef = hasSkillFilter ? add(query.skills) : null;
-      const posRef = hasPositionFilter ? add(query.positions) : null;
+    if (hasScoring) {
+      const skillRef = hasScoreSkills ? add(scoreSkills) : null;
+      const posRef = hasScorePositions ? add(scorePositions) : null;
 
-      const orParts: string[] = [];
-      if (skillRef) orParts.push(`p.skills::text[] && ${skillRef}::text[]`);
-      if (posRef) orParts.push(`p.position::text = ANY(${posRef}::text[])`);
+      if (hasSkillFilter || hasPositionFilter) {
+        const filterParts: string[] = [];
+        if (hasSkillFilter && skillRef) filterParts.push(`p.skills::text[] && ${skillRef}::text[]`);
+        if (hasPositionFilter && posRef) filterParts.push(`p.position::text = ANY(${posRef}::text[])`);
 
-      filterExistsCond = `AND EXISTS (
+        filterExistsCond = `AND EXISTS (
         SELECT 1 FROM team_members tm_f
         JOIN participants p ON p.id = tm_f."participantId"
-        WHERE tm_f."teamId" = t.id AND (${orParts.join(" OR ")})
+        WHERE tm_f."teamId" = t.id AND (${filterParts.join(" OR ")})
       )`;
+      }
 
       const skillScore = skillRef
         ? `(SELECT COUNT(*) FROM unnest(p.skills::text[]) s WHERE s = ANY(${skillRef}::text[]))::int`
@@ -217,32 +237,7 @@ export class TeamService {
         : "0";
       memberScoreExpr = `${skillScore} + ${posScore}`;
     } else {
-      const rec = await fetchRecommendations(
-        hackathon.topic,
-        hackathon.maxTeamSize,
-        [{ skills: participant.skills, position: participant.position }],
-        6,
-        3,
-      );
-      recommendedSkills = rec.recommended_skills;
-      recommendedPositions = rec.recommended_positions;
-
-      const parts: string[] = [];
-      if (rec.recommended_skills.length > 0) {
-        const snRef = add(rec.recommended_skills.map((s) => s.skill));
-        const swRef = add(rec.recommended_skills.map((s) => s.score));
-        parts.push(
-          `COALESCE((SELECT SUM(w) FROM unnest(${snRef}::text[], ${swRef}::float8[]) AS sw(n, w) WHERE n = ANY(p.skills::text[])), 0)`,
-        );
-      }
-      if (rec.recommended_positions.length > 0) {
-        const pnRef = add(rec.recommended_positions.map((p) => p.position));
-        const pwRef = add(rec.recommended_positions.map((p) => p.score));
-        parts.push(
-          `COALESCE((SELECT w FROM unnest(${pnRef}::text[], ${pwRef}::float8[]) AS pw(n, w) WHERE p.position::text = n LIMIT 1), 0)`,
-        );
-      }
-      memberScoreExpr = parts.length > 0 ? parts.join(" + ") : "0";
+      memberScoreExpr = "0";
     }
 
     const scoreExpr = `(
@@ -312,9 +307,75 @@ export class TeamService {
     result.total = total;
     result.page = page;
     result.limit = limit;
-    result.recommendedSkills = recommendedSkills;
-    result.recommendedPositions = recommendedPositions;
     return result;
+  }
+
+  async kickMember(teamId: string, participantId: string, user: User): Promise<TeamDto> {
+    const team = await this.teamRepo.findOne({
+      where: { id: teamId },
+      relations: ["hackathon", "leader", "leader.user", "members", "members.user"],
+    });
+    if (!team) {
+      const err: any = new Error("Team not found");
+      err.httpCode = 404;
+      throw err;
+    }
+    if (team.leader.user.id !== user.id) {
+      const err: any = new Error("Only the team leader can kick members");
+      err.httpCode = 403;
+      throw err;
+    }
+    if (team.leader.id === participantId) {
+      const err: any = new Error("Cannot kick the team leader");
+      err.httpCode = 400;
+      throw err;
+    }
+    const memberIdx = team.members.findIndex((m) => m.id === participantId);
+    if (memberIdx === -1) {
+      const err: any = new Error("Participant is not a member of this team");
+      err.httpCode = 404;
+      throw err;
+    }
+    team.members.splice(memberIdx, 1);
+    const saved = await this.teamRepo.save(team);
+
+    // Remove kicked user from the team chat room if it exists
+    const chatRoomRepo = AppDataSource.getRepository(
+      (await import("../entities/ChatRoom")).ChatRoom,
+    );
+    const chatRoom = await chatRoomRepo.findOne({
+      where: { teamId },
+      relations: ["members"],
+    });
+    if (chatRoom) {
+      const kickedUser = await AppDataSource.getRepository(
+        (await import("../entities/User")).User,
+      ).findOne({ where: { participant: { id: participantId } }, relations: ["participant"] });
+      if (kickedUser) {
+        chatRoom.members = chatRoom.members.filter((m) => m.id !== kickedUser.id);
+        await chatRoomRepo.save(chatRoom);
+      }
+    }
+
+    return toTeamDto(saved);
+  }
+
+  async delete(teamId: string, user: User): Promise<void> {
+    const team = await this.teamRepo.findOne({
+      where: { id: teamId },
+      relations: ["leader", "leader.user"],
+    });
+    if (!team) {
+      const err: any = new Error("Team not found");
+      err.httpCode = 404;
+      throw err;
+    }
+    if (team.leader.user.id !== user.id) {
+      const err: any = new Error("Only the team leader can delete the team");
+      err.httpCode = 403;
+      throw err;
+    }
+    await this.teamRepo.remove(team);
   }
 
   async findMembers(
@@ -333,10 +394,32 @@ export class TeamService {
 
     const hasSkillFilter = (query.skills?.length ?? 0) > 0;
     const hasPositionFilter = (query.positions?.length ?? 0) > 0;
-    const hasFilters = hasSkillFilter || hasPositionFilter;
 
-    let recommendedSkills: { skill: string; score: number }[] | undefined;
-    let recommendedPositions: { position: string; score: number }[] | undefined;
+    let scoreSkills: string[] | undefined = hasSkillFilter ? (query.skills as string[]) : undefined;
+    let scorePositions: string[] | undefined = hasPositionFilter
+      ? (query.positions as string[])
+      : undefined;
+
+    if (!hasSkillFilter || !hasPositionFilter) {
+      try {
+        const memberPayloads = team.members.map((m) => ({
+          skills: m.skills,
+          position: m.position,
+        }));
+        const rec = await fetchRecommendations(
+          team.hackathon.topic,
+          team.hackathon.maxTeamSize,
+          memberPayloads,
+        );
+        if (!hasSkillFilter) scoreSkills = rec.recommended_skills.map((s) => s.skill);
+        if (!hasPositionFilter) scorePositions = rec.recommended_positions.map((p) => p.position);
+      } catch {
+      }
+    }
+
+    const hasScoreSkills = (scoreSkills?.length ?? 0) > 0;
+    const hasScorePositions = (scorePositions?.length ?? 0) > 0;
+    const hasScoring = hasScoreSkills || hasScorePositions;
 
     const params: any[] = [team.hackathon.id];
     let next = 2;
@@ -348,14 +431,16 @@ export class TeamService {
     let scoreExpr: string;
     let filterCond = "";
 
-    if (hasFilters) {
-      const skillRef = hasSkillFilter ? add(query.skills) : null;
-      const posRef = hasPositionFilter ? add(query.positions) : null;
+    if (hasScoring) {
+      const skillRef = hasScoreSkills ? add(scoreSkills) : null;
+      const posRef = hasScorePositions ? add(scorePositions) : null;
 
-      const orParts: string[] = [];
-      if (skillRef) orParts.push(`p.skills::text[] && ${skillRef}::text[]`);
-      if (posRef) orParts.push(`p.position::text = ANY(${posRef}::text[])`);
-      filterCond = `AND (${orParts.join(" OR ")})`;
+      if (hasSkillFilter || hasPositionFilter) {
+        const filterParts: string[] = [];
+        if (hasSkillFilter && skillRef) filterParts.push(`p.skills::text[] && ${skillRef}::text[]`);
+        if (hasPositionFilter && posRef) filterParts.push(`p.position::text = ANY(${posRef}::text[])`);
+        filterCond = `AND (${filterParts.join(" OR ")})`;
+      }
 
       const skillScore = skillRef
         ? `(SELECT COUNT(*) FROM unnest(p.skills::text[]) s WHERE s = ANY(${skillRef}::text[]))::int`
@@ -365,32 +450,7 @@ export class TeamService {
         : "0";
       scoreExpr = `(${skillScore} + ${posScore})`;
     } else {
-      const rec = await fetchRecommendations(
-        team.hackathon.topic,
-        team.hackathon.maxTeamSize,
-        team.members.map((m) => ({ skills: m.skills, position: m.position })),
-        6,
-        3,
-      );
-      recommendedSkills = rec.recommended_skills;
-      recommendedPositions = rec.recommended_positions;
-
-      const parts: string[] = [];
-      if (rec.recommended_skills.length > 0) {
-        const snRef = add(rec.recommended_skills.map((s) => s.skill));
-        const swRef = add(rec.recommended_skills.map((s) => s.score));
-        parts.push(
-          `COALESCE((SELECT SUM(w) FROM unnest(${snRef}::text[], ${swRef}::float8[]) AS sw(n, w) WHERE n = ANY(p.skills::text[])), 0)`,
-        );
-      }
-      if (rec.recommended_positions.length > 0) {
-        const pnRef = add(rec.recommended_positions.map((p) => p.position));
-        const pwRef = add(rec.recommended_positions.map((p) => p.score));
-        parts.push(
-          `COALESCE((SELECT w FROM unnest(${pnRef}::text[], ${pwRef}::float8[]) AS pw(n, w) WHERE p.position::text = n LIMIT 1), 0)`,
-        );
-      }
-      scoreExpr = parts.length > 0 ? `(${parts.join(" + ")})` : "0";
+      scoreExpr = "0";
     }
 
     const extraClauses: string[] = [];
@@ -418,13 +478,18 @@ export class TeamService {
         p.skills::text[]        AS skills,
         p.position::text        AS position,
         p."yearsOfExperience",
+        u.id as "userId",
         u."firstName",
         u."lastName",
         ${scoreExpr}            AS score,
         COUNT(*) OVER()         AS total
       FROM participants p
       INNER JOIN users u ON u.id = p."userId"
-      WHERE NOT EXISTS (
+      WHERE EXISTS (
+        SELECT 1 FROM hackathon_registrations hr
+        WHERE hr."hackathonId" = $1 AND hr."participantId" = p.id
+      )
+      AND NOT EXISTS (
         SELECT 1 FROM team_members tm
         INNER JOIN teams t ON t.id = tm."teamId"
         WHERE t."hackathonId" = $1 AND tm."participantId" = p.id
@@ -437,6 +502,7 @@ export class TeamService {
 
     const rows: Array<{
       id: string;
+      userId: string;
       skills: string[];
       position: string | null;
       yearsOfExperience: number | null;
@@ -451,6 +517,7 @@ export class TeamService {
     const members = rows.map((row) => {
       const m = new TeamMemberDto();
       m.id = row.id;
+      m.userId = row.userId;
       m.firstName = row.firstName;
       m.lastName = row.lastName;
       m.position = row.position as any;
@@ -464,8 +531,74 @@ export class TeamService {
     result.total = total;
     result.page = page;
     result.limit = limit;
-    result.recommendedSkills = recommendedSkills;
-    result.recommendedPositions = recommendedPositions;
     return result;
+  }
+
+  /** Returns pending JOIN_REQUESTs for a team (leader only). */
+  async getTeamRequests(teamId: string, user: User): Promise<TeamRequestItemDto[]> {
+    const team = await this.teamRepo.findOne({
+      where: { id: teamId },
+      relations: ["leader", "leader.user"],
+    });
+    if (!team) {
+      const err: any = new Error("Team not found");
+      err.httpCode = 404;
+      throw err;
+    }
+    if (team.leader.user.id !== user.id) {
+      const err: any = new Error("Only the team leader can view join requests");
+      err.httpCode = 403;
+      throw err;
+    }
+
+    const requests = await this.requestRepo.find({
+      where: {
+        team: { id: teamId },
+        type: TeamRequestType.JOIN_REQUEST,
+        status: TeamRequestStatus.PENDING,
+      },
+      relations: ["participant", "participant.user", "team", "team.hackathon"],
+      order: { createdAt: "DESC" },
+    });
+
+    return requests.map((r) => this.toRequestItemDto(r));
+  }
+
+  /** Returns pending INVITEs addressed to the current participant. */
+  async getMyInvites(user: User): Promise<TeamRequestItemDto[]> {
+    const participant = await this.participantRepo.findOne({ where: { user: { id: user.id } } });
+    if (!participant) return [];
+
+    const requests = await this.requestRepo.find({
+      where: {
+        participant: { id: participant.id },
+        type: TeamRequestType.INVITE,
+        status: TeamRequestStatus.PENDING,
+      },
+      relations: ["participant", "participant.user", "team", "team.hackathon"],
+      order: { createdAt: "DESC" },
+    });
+
+    return requests.map((r) => this.toRequestItemDto(r));
+  }
+  private toRequestItemDto(r: TeamRequest): TeamRequestItemDto {
+    const p = new TeamRequestParticipantDto();
+    p.id = r.participant.id;
+    p.userId = r.participant.user.id;
+    p.firstName = r.participant.user.firstName;
+    p.lastName = r.participant.user.lastName;
+    p.position = r.participant.position;
+    p.skills = r.participant.skills;
+    p.yearsOfExperience = r.participant.yearsOfExperience;
+
+    const dto = new TeamRequestItemDto();
+    dto.id = r.id;
+    dto.type = r.type;
+    dto.teamId = r.team.id;
+    dto.teamName = r.team.name;
+    dto.hackathonId = r.team.hackathon.id;
+    dto.participant = p;
+    dto.createdAt = r.createdAt;
+    return dto;
   }
 }

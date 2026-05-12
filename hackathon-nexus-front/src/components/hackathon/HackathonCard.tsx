@@ -2,18 +2,11 @@ import { Calendar, CheckCircle, Clock, Code2, Ticket, Users } from "lucide-react
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import type { HackathonDto } from "../../api/hackathons";
+import { formatDateShort } from "../../shared/formatDate";
 import styles from "./HackathonCard.module.css";
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
 export function HackathonCard({ hackathon: h }: { hackathon: HackathonDto }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   return (
     <Link to={`/hackathons/${h.id}`} className={styles.cardLink}>
       <article className={styles.card}>
@@ -30,7 +23,7 @@ export function HackathonCard({ hackathon: h }: { hackathon: HackathonDto }) {
           <p className={styles.cardDescription}>{h.description}</p>
           <div className={styles.cardMeta}>
             <span className={styles.cardMetaItem}>
-              <Calendar size={13} /> {formatDate(h.startDate)}
+              <Calendar size={13} /> {formatDateShort(h.startDate, i18n.language)}
             </span>
             <span className={styles.cardMetaItem}>
               <Clock size={13} /> {h.durationHours}h

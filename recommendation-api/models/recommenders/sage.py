@@ -66,7 +66,7 @@ class TeamCompletionSAGE(torch.nn.Module):
             h_new = conv(h, edge_index_dict)
             h = {
                 k: (
-                    self.dropout(F.layer_norm(F.relu(h_new[k]) + h[k], [self.hidden_dim]))
+                    self.dropout(F.relu(F.layer_norm(h_new[k] + h[k], [self.hidden_dim])))
                     if k in h_new else h[k]
                 )
                 for k in h
@@ -74,14 +74,6 @@ class TeamCompletionSAGE(torch.nn.Module):
         return h
 
     def forward(self, x_dict: dict, edge_index_dict: dict) -> dict:
-        """
-        Returns raw logits for all teams in the graph.
-
-        Returns
-        -------
-        skill_logits    : (num_teams, N_SKILLS)
-        position_logits : (num_teams, N_POSITIONS)
-        """
         h = self.encode(x_dict, edge_index_dict)
         team_query = self.skill_query_proj(h["team"])
 
@@ -103,31 +95,6 @@ class TeamCompletionSAGE(torch.nn.Module):
             top_k_skills: int | None = None,
             top_k_positions: int | None = None,
     ) -> dict:
-        """
-        Recommend skills and positions for a partial hackathon team.
-
-        Parameters
-        ----------
-        topic             : hackathon topic (one of ALL_TOPICS)
-        max_team_size     : maximum team size for this hackathon
-        members           : current team members. Each dict must contain:
-                              - "skills"           : list[str]
-                              - "position"         : str
-                              - "experience_years" : float  (optional, default 0)
-                            Pass an empty list for a fresh/cold-start search.
-        top_k_skills      : number of skill recommendations to return. When None
-                            (default), inferred as missing_slots * 4 where
-                            missing_slots = max(1, max_team_size - len(members)).
-        top_k_positions   : number of position recommendations to return. When None
-                            (default), inferred as missing_slots.
-
-        Returns
-        -------
-        {
-          "recommended_skills"    : list[str],
-          "recommended_positions" : list[str],
-        }
-        """
         missing_slots = max(1, max_team_size - len(members))
         if top_k_skills is None:
             top_k_skills = min(N_SKILLS, missing_slots * 4)

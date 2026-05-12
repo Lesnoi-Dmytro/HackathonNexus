@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AppLayout } from "./components/AppLayout";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { NotificationsProvider } from "./contexts/NotificationsContext";
 import { ChatPage } from "./pages/ChatPage";
@@ -9,6 +10,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { TeamManagementPage } from "./pages/TeamManagementPage";
 import { TeamSearchPage } from "./pages/TeamSearchPage";
+import { UserProfilePage } from "./pages/UserProfilePage";
 
 function AppRoutes() {
   const { token } = useAuth();
@@ -21,9 +23,12 @@ function AppRoutes() {
           <Route element={<AppLayout />}>
             <Route path="/hackathons" element={<HackathonsPage />} />
             <Route path="/hackathons/:id" element={<HackathonDetailPage />} />
-            <Route path="/hackathons/:id/team" element={<TeamManagementPage />} />
-            <Route path="/hackathons/:id/team/search" element={<TeamSearchPage />} />
-            <Route path="/chat" element={<ChatPage />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/hackathons/:id/team" element={<TeamManagementPage />} />
+              <Route path="/hackathons/:id/team/search" element={<TeamSearchPage />} />
+              <Route path="/chat" element={<ChatPage />} />
+              <Route path="/users/:id" element={<UserProfilePage />} />
+            </Route>
           </Route>
           <Route path="*" element={<Navigate to="/hackathons" replace />} />
         </Routes>

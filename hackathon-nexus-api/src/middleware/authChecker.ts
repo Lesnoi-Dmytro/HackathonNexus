@@ -43,7 +43,10 @@ export async function currentUserChecker(action: Action): Promise<User | null> {
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-    return await AppDataSource.getRepository(User).findOneBy({ id: payload.sub });
+    return await AppDataSource.getRepository(User).findOne({
+      where: { id: payload.sub },
+      relations: { participant: true },
+    });
   } catch {
     return null;
   }

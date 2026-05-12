@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import type { NotificationDto } from "../api/notifications";
-import { notificationText } from "../api/notifications.types";
+import { notificationLink, notificationText } from "../api/notifications.types";
 import { useAuth } from "../contexts/AuthContext";
 import { useNotifications } from "../contexts/NotificationsContext";
 import { Button } from "../shared/ui/Button";
@@ -41,8 +41,12 @@ export function AppLayout() {
   }, []);
 
   async function handleNotificationClick(n: NotificationDto) {
-    if (n.read) return;
-    await markRead(n.id);
+    if (!n.read) await markRead(n.id);
+    const link = notificationLink(n.payload);
+    if (link) {
+      setDropdownOpen(false);
+      navigate(link);
+    }
   }
 
   function handleLogout() {
@@ -52,101 +56,117 @@ export function AppLayout() {
 
   const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : "?";
 
-  const roleLabel =
-    user?.role === "hackathon-admin" ? t("roles.admin") : t("roles.participant");
+  const roleLabel = user?.role === "hackathon-admin" ? t("roles.admin") : t("roles.participant");
 
   return (
     <div className={styles.layout}>
-      {/* ── Topbar ── */}
       <header className={styles.topbar}>
         <Link to="/hackathons" className={styles.brand}>
           Hackathon Nexus
         </Link>
 
         <nav className={styles.nav}>
-          <NavLink
-            to="/chat"
-            className={({ isActive }) =>
-              `${styles.navLink} ${isActive ? styles.navLinkActive : ""}`
-            }
-          >
-            <MessageSquare size={16} />
-            {t("nav.messages")}
-          </NavLink>
+          {user && (
+            <NavLink
+              to="/chat"
+              className={({ isActive }) =>
+                `${styles.navLink} ${isActive ? styles.navLinkActive : ""}`
+              }
+            >
+              <MessageSquare size={16} />
+              {t("nav.messages")}
+            </NavLink>
+          )}
         </nav>
 
         <div className={styles.right}>
-          {/* Notification bell */}
-          <div className={styles.bellWrapper} ref={bellRef}>
-            <button
-              type="button"
-              className={styles.bell}
-              aria-label={t("notifications.title")}
-              onClick={() => setDropdownOpen((v) => !v)}
-            >
-              <BellIcon />
-              {unreadCount > 0 && (
-                <span className={styles.badge}>{unreadCount > 99 ? "99+" : unreadCount}</span>
-              )}
-            </button>
-
-            {dropdownOpen && (
-              <div className={styles.dropdown}>
-                <div className={styles.dropdownHeader}>
-                  <span>{t("notifications.title")}</span>
+          {user ? (
+            <>
+              <div className={styles.bellWrapper} ref={bellRef}>
+                <button
+                  type="button"
+                  className={styles.bell}
+                  aria-label={t("notifications.title")}
+                  onClick={() => setDropdownOpen((v) => !v)}
+                >
+                  <BellIcon />
                   {unreadCount > 0 && (
-                    <button type="button" className={styles.markAllBtn} onClick={markAllRead}>
-                      {t("notifications.markAllRead")}
-                    </button>
+                    <span className={styles.badge}>{unreadCount > 99 ? "99+" : unreadCount}</span>
                   )}
-                </div>
-                <div className={styles.notifList}>
-                  {notifications.length === 0 ? (
-                    <p className={styles.notifEmpty}>{t("notifications.empty")}</p>
-                  ) : (
-                    notifications.map((n) => (
-                      <div
-                        key={n.id}
-                        className={`${styles.notifItem} ${!n.read ? styles.notifUnread : ""}`}
-                        onClick={() => handleNotificationClick(n)}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => e.key === "Enter" && handleNotificationClick(n)}
-                      >
-                        <span
-                          className={`${styles.notifDot} ${n.read ? styles.notifDotRead : ""}`}
-                        />
-                        <span className={styles.notifText}>{notificationText(n.payload, t)}</span>
-                        <span className={styles.notifTime}>{timeAgo(n.createdAt, t)}</span>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
+                </button>
 
-          {/* User info */}
-          <div className={styles.userChip}>
-            <div className={styles.avatar} aria-hidden="true">
-              {initials}
-            </div>
-            <div>
-              <div className={styles.userName}>
-                {user?.firstName} {user?.lastName}
+                {dropdownOpen && (
+                  <div className={styles.dropdown}>
+                    <div className={styles.dropdownHeader}>
+                      <span>{t("notifications.title")}</span>
+                      {unreadCount > 0 && (
+                        <button type="button" className={styles.markAllBtn} onClick={markAllRead}>
+                          {t("notifications.markAllRead")}
+                        </button>
+                      )}
+                    </div>
+                    <div className={styles.notifList}>
+                      {notifications.length === 0 ? (
+                        <p className={styles.notifEmpty}>{t("notifications.empty")}</p>
+                      ) : (
+                        notifications.map((n) => {
+                          const link = notificationLink(n.payload);
+                          return (
+                            <div
+                              key={n.id}
+                              className={`${styles.notifItem} ${!n.read ? styles.notifUnread : ""} ${link ? styles.notifClickable : ""}`}
+                              onClick={() => handleNotificationClick(n)}
+                              role="button"
+                              tabIndex={0}
+                              onKeyDown={(e) => e.key === "Enter" && handleNotificationClick(n)}
+                            >
+                              <span
+                                className={`${styles.notifDot} ${n.read ? styles.notifDotRead : ""}`}
+                              />
+                              <span className={styles.notifText}>{notificationText(n.payload, t)}</span>
+                              <div className={styles.notifMeta}>
+                                <span className={styles.notifTime}>{timeAgo(n.createdAt, t)}</span>
+                                {link && <span className={styles.notifArrow}>›</span>}
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className={styles.userRole}>{roleLabel}</div>
-            </div>
-          </div>
 
-          <Button variant="outline" size="sm" onClick={handleLogout}>
-            {t("nav.signOut")}
-          </Button>
+              <Link to={`/users/${user.id}`} className={styles.userChip}>
+                <div className={styles.avatar} aria-hidden="true">
+                  {initials}
+                </div>
+                <div>
+                  <div className={styles.userName}>
+                    {user.firstName} {user.lastName}
+                  </div>
+                  <div className={styles.userRole}>{roleLabel}</div>
+                </div>
+              </Link>
+
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                {t("nav.signOut")}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className={styles.navLink}>
+                {t("auth.signIn")}
+              </Link>
+              <Button size="sm" onClick={() => navigate("/register")}>
+                {t("auth.createAccount")}
+              </Button>
+            </>
+          )}
           <LanguageSwitcher />
         </div>
       </header>
 
-      {/* ── Page content ── */}
       <main className={styles.main}>
         <Outlet />
       </main>

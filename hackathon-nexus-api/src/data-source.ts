@@ -10,6 +10,7 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD || "postgres",
   database: process.env.DB_NAME || "hackathon_nexus",
   synchronize: false,
+  migrationsRun: true,
   logging: process.env.NODE_ENV === "development",
   entities: typeormEntities,
   migrations: typeormMigrations,

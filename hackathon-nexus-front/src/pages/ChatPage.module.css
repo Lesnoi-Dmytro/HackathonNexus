@@ -270,6 +270,21 @@
   color: var(--color-primary, #646cff);
 }
 
+.kickBtn {
+  background: none;
+  border: none;
+  color: var(--color-muted, #888);
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.kickBtn:hover {
+  color: var(--color-destructive, #e53e3e);
+}
+
 /* Messages */
 .messages {
   flex: 1;
@@ -360,6 +375,12 @@
   text-transform: uppercase;
   align-self: flex-start;
   margin-top: 2px;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s;
+}
+.avatar:hover {
+  border-color: var(--color-primary, #5865f2);
 }
 
 .msgBody {
@@ -379,6 +400,14 @@
   color: var(--color-muted, #888);
   margin-bottom: 3px;
   padding: 0 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+.senderName:hover {
+  color: var(--color-primary, #5865f2);
+  text-decoration: underline;
 }
 
 .bubble {
@@ -406,6 +435,23 @@
   color: var(--color-muted, #888);
   margin-top: 3px;
   padding: 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.bubblePending {
+  opacity: 0.6;
+}
+
+.pendingIcon {
+  animation: spin 1s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* Composer */

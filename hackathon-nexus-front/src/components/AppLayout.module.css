@@ -73,6 +73,15 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.8rem;
+  text-align: start;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 6px;
+  padding: 0.2rem 0.4rem;
+  transition: background 0.15s;
+}
+.userChip:hover {
+  background: var(--color-border, #2a2a2a);
 }
 
 .avatar {
@@ -191,9 +200,17 @@
   align-items: flex-start;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  cursor: pointer;
+  cursor: default;
   border-bottom: 1px solid var(--color-border, #2a2a2a);
   transition: background 0.12s;
+}
+
+.notifClickable {
+  cursor: pointer;
+}
+
+.notifClickable:hover {
+  background: rgba(100, 108, 255, 0.08);
 }
 
 .notifItem:last-child {
@@ -228,11 +245,48 @@
   flex: 1;
 }
 
+.notifBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.notifEntityLink {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-primary, #646cff);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notifEntityLink:hover {
+  text-decoration: underline;
+}
+
 .notifTime {
   font-size: 0.72rem;
   color: var(--color-muted, #888);
   white-space: nowrap;
   margin-top: 2px;
+}
+
+.notifMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  flex-shrink: 0;
+}
+
+.notifArrow {
+  font-size: 1rem;
+  color: var(--color-primary, #646cff);
+  line-height: 1;
 }
 
 .notifEmpty {

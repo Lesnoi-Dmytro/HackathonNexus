@@ -1,14 +1,16 @@
 import {
-  Authorized,
-  Body,
-  CurrentUser,
-  Get,
-  HttpCode,
-  JsonController,
-  Post,
+    Authorized,
+    Body,
+    CurrentUser,
+    Get,
+    HttpCode,
+    JsonController,
+    Param,
+    Patch,
+    Post,
 } from "routing-controllers";
 import { OpenAPI } from "routing-controllers-openapi";
-import { LoginDto, RegisterDto } from "../dto/auth.dto";
+import { LoginDto, RegisterDto, UpdateParticipantDto } from "../dto/auth.dto";
 import { AuthResponseDto, UserDto } from "../dto/response.dto";
 import { User } from "../entities/User";
 import { AuthService, toUserDto } from "../services/AuthService";
@@ -81,5 +83,54 @@ export class AuthController {
   })
   me(@CurrentUser({ required: true }) user: User): UserDto {
     return toUserDto(user);
+  }
+
+  @Get("/users/:id")
+  @Authorized()
+  @OpenAPI({
+    summary: "Get a user's public profile by ID",
+    security: [{ bearerAuth: [] }],
+    responses: {
+      "200": {
+        description: "User profile",
+        content: {
+          "application/json": { schema: { $ref: "#/components/schemas/UserDto" } },
+        },
+      },
+      "401": { description: "Unauthorized" },
+      "404": { description: "User not found" },
+    },
+  })
+  async getUserById(@Param("id") id: string): Promise<UserDto> {
+    return this.authService.getUserById(id);
+  }
+
+  @Patch("/me/participant")
+  @Authorized()
+  @OpenAPI({
+    summary: "Update the current participant's profile",
+    security: [{ bearerAuth: [] }],
+    requestBody: {
+      required: true,
+      content: {
+        "application/json": { schema: { $ref: "#/components/schemas/UpdateParticipantDto" } },
+      },
+    },
+    responses: {
+      "200": {
+        description: "Updated user profile",
+        content: {
+          "application/json": { schema: { $ref: "#/components/schemas/UserDto" } },
+        },
+      },
+      "401": { description: "Unauthorized" },
+      "404": { description: "Participant profile not found" },
+    },
+  })
+  async updateParticipant(
+    @CurrentUser({ required: true }) user: User,
+    @Body() dto: UpdateParticipantDto,
+  ): Promise<UserDto> {
+    return this.authService.updateParticipant(user.id, dto);
   }
 }

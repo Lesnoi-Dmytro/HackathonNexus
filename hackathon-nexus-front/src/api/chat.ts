@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+import { request } from "./client";
 
 // ── DTOs ─────────────────────────────────────────────────────────────────────
 
@@ -15,6 +15,8 @@ export interface ChatRoomDto {
   type: ChatRoomType;
   /** Present only for team rooms. */
   teamId?: string;
+  /** Name of the team — present only for team rooms. */
+  teamName?: string;
   members: ChatMemberDto[];
   createdAt: string;
 }
@@ -29,43 +31,25 @@ export interface MessageDto {
 
 // ── API functions ─────────────────────────────────────────────────────────────
 
-export async function getChatRooms(token: string): Promise<ChatRoomDto[]> {
-  const res = await fetch(`${BASE}/api/chat/rooms`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) throw new Error("Failed to load chat rooms");
-  return res.json();
+export function getChatRooms(token: string): Promise<ChatRoomDto[]> {
+  return request<ChatRoomDto[]>("/chat/rooms", token);
 }
 
-export async function getOrCreateTeamRoom(token: string, teamId: string): Promise<ChatRoomDto> {
-  const res = await fetch(`${BASE}/api/chat/rooms/team/${teamId}`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) throw new Error("Failed to open team chat");
-  return res.json();
+export function getOrCreateTeamRoom(token: string, teamId: string): Promise<ChatRoomDto> {
+  return request<ChatRoomDto>(`/chat/rooms/team/${teamId}`, token, { method: "POST" });
 }
 
-export async function getOrCreateDirectRoom(
+export function getOrCreateDirectRoom(
   token: string,
   targetUserId: string,
 ): Promise<ChatRoomDto> {
-  const res = await fetch(`${BASE}/api/chat/rooms/direct`, {
+  return request<ChatRoomDto>("/chat/rooms/direct", token, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify({ targetUserId }),
   });
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body?.message ?? "Failed to open DM");
-  }
-  return res.json();
 }
 
-export async function getMessages(
+export function getMessages(
   token: string,
   roomId: string,
   params: { before?: string; limit?: number } = {},
@@ -73,9 +57,5 @@ export async function getMessages(
   const qs = new URLSearchParams();
   if (params.before) qs.set("before", params.before);
   if (params.limit != null) qs.set("limit", String(params.limit));
-  const res = await fetch(`${BASE}/api/chat/rooms/${roomId}/messages?${qs}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) throw new Error("Failed to load messages");
-  return res.json();
+  return request<MessageDto[]>(`/chat/rooms/${roomId}/messages?${qs}`, token);
 }

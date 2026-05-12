@@ -54,6 +54,7 @@ export class HackathonsPageDto {
 
 export class TeamMemberDto {
   id!: string;
+  userId!: string;
   firstName!: string;
   lastName!: string;
   position?: Position;
@@ -86,8 +87,6 @@ export class TeamsRecommendResponseDto {
   total!: number;
   page!: number;
   limit!: number;
-  recommendedSkills?: ScoredSkillDto[];
-  recommendedPositions?: ScoredPositionDto[];
 }
 
 export class MembersRecommendResponseDto {
@@ -95,8 +94,6 @@ export class MembersRecommendResponseDto {
   total!: number;
   page!: number;
   limit!: number;
-  recommendedSkills?: ScoredSkillDto[];
-  recommendedPositions?: ScoredPositionDto[];
 }
 
 export class NotificationDto {
@@ -111,4 +108,24 @@ export class NotificationsPageDto {
   total!: number;
   page!: number;
   limit!: number;
+}
+
+export class TeamRequestParticipantDto {
+  id!: string;
+  userId!: string;
+  firstName!: string;
+  lastName!: string;
+  position?: Position;
+  skills!: Skill[];
+  yearsOfExperience?: number;
+}
+
+export class TeamRequestItemDto {
+  id!: string;
+  type!: string;
+  teamId!: string;
+  teamName!: string;
+  hackathonId!: string;
+  participant!: TeamRequestParticipantDto;
+  createdAt!: Date;
 }

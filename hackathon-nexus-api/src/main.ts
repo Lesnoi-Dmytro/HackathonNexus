@@ -14,6 +14,7 @@ import { NotificationController } from "./controllers/NotificationController";
 import { TeamController } from "./controllers/TeamController";
 import { AppDataSource } from "./data-source";
 import { authorizationChecker, currentUserChecker } from "./middleware/authChecker";
+import { ResponseWrapInterceptor } from "./middleware/ResponseWrapInterceptor";
 import { createSocketServer } from "./socket";
 import { generateSwaggerSpec } from "./swagger";
 
@@ -28,6 +29,7 @@ const routingControllersOptions: RoutingControllersOptions = {
   ],
   authorizationChecker,
   currentUserChecker,
+  interceptors: [ResponseWrapInterceptor],
   validation: true,
   classTransformer: true,
   defaultErrorHandler: true,
@@ -60,7 +62,7 @@ async function bootstrap(): Promise<void> {
 
   const port = Number(process.env.PORT) || 3000;
   httpServer.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+    console.log(`Server running at http://localhost:${port}/api`);
     console.log(`Swagger docs at http://localhost:${port}/docs`);
     console.log(`WebSocket server at ws://localhost:${port}/ws`);
   });

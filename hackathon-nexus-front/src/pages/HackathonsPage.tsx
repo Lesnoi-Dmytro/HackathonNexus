@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-    ALL_TOPICS,
-    listHackathons,
-    type HackathonTopic,
-    type HackathonsPage,
+  ALL_TOPICS,
+  listHackathons,
+  type HackathonTopic,
+  type HackathonsPage,
 } from "../api/hackathons";
 import { HackathonCard } from "../components/hackathon/HackathonCard";
 import { useAuth } from "../contexts/AuthContext";
@@ -15,7 +15,7 @@ import styles from "./HackathonsPage.module.css";
 const PAGE_SIZE = 12;
 
 export function HackathonsPage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const { t } = useTranslation();
 
   const [result, setResult] = useState<HackathonsPage>({
@@ -24,15 +24,17 @@ export function HackathonsPage() {
     page: 1,
     limit: PAGE_SIZE,
   });
+  const isParticipant = user?.role === "participant";
+
   const [activeTopic, setActiveTopic] = useState<HackathonTopic | undefined>(undefined);
   const [search, setSearch] = useState("");
-  const [notStarted, setNotStarted] = useState(false);
+  const [notStarted, setNotStarted] = useState(true);
   const [notEnded, setNotEnded] = useState(false);
+  const [registeredOnly, setRegisteredOnly] = useState(false);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Debounce search input
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [debouncedSearch, setDebouncedSearch] = useState("");
   useEffect(() => {
@@ -49,10 +51,9 @@ export function HackathonsPage() {
   // Reset page on filter change
   useEffect(() => {
     setPage(1);
-  }, [activeTopic, notStarted, notEnded]);
+  }, [activeTopic, notStarted, notEnded, registeredOnly]);
 
   useEffect(() => {
-    if (!token) return;
     setIsLoading(true);
     setError("");
     listHackathons(token, {
@@ -60,6 +61,7 @@ export function HackathonsPage() {
       search: debouncedSearch || undefined,
       notStarted: notStarted || undefined,
       notEnded: notEnded || undefined,
+      registeredOnly: registeredOnly || undefined,
       page,
       limit: PAGE_SIZE,
     })
@@ -68,7 +70,7 @@ export function HackathonsPage() {
         setError(err instanceof Error ? err.message : t("common.loading"));
       })
       .finally(() => setIsLoading(false));
-  }, [token, activeTopic, debouncedSearch, notStarted, notEnded, page]);
+  }, [token, activeTopic, debouncedSearch, notStarted, notEnded, registeredOnly, page]);
 
   const totalPages = Math.max(1, Math.ceil(result.total / PAGE_SIZE));
 
@@ -93,6 +95,15 @@ export function HackathonsPage() {
           >
             {t("hackathons.ongoing")}
           </button>
+          {isParticipant && (
+            <button
+              type="button"
+              className={`${styles.toggle} ${registeredOnly ? styles.toggleActive : ""}`}
+              onClick={() => setRegisteredOnly((v) => !v)}
+            >
+              {t("hackathons.myHackathons")}
+            </button>
+          )}
 
           {/* Search */}
           <div className={styles.searchWrap}>
@@ -144,8 +155,7 @@ export function HackathonsPage() {
       )}
 
       {/* Pagination */}
-      {!isLoading && !error && totalPages > 1 && (
-        <div className={styles.pagination}>
+      <div className={styles.pagination}>
           <Button
             variant="outline"
             size="sm"
@@ -156,7 +166,9 @@ export function HackathonsPage() {
           </Button>
           <span className={styles.pageInfo}>
             {page} / {totalPages}
-            <span className={styles.totalCount}>{t("hackathons.total", { count: result.total })}</span>
+            <span className={styles.totalCount}>
+              {t("hackathons.total", { count: result.total })}
+            </span>
           </span>
           <Button
             variant="outline"
@@ -167,7 +179,6 @@ export function HackathonsPage() {
             {t("hackathons.next")}
           </Button>
         </div>
-      )}
     </div>
   );
 }

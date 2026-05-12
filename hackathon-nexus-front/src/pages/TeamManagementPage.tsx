@@ -1,18 +1,24 @@
-import { ChevronLeft, MessageSquare, Search, UserPlus } from "lucide-react";
+import { Check, ChevronLeft, MessageSquare, Search, Trash2, UserMinus, UserPlus, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { getOrCreateTeamRoom } from "../api/chat";
 import { getHackathon, type HackathonDto } from "../api/hackathons";
 import {
-    createTeam,
-    findMembers,
-    getMyTeam,
-    type MembersPage,
-    type TeamDto,
-    type TeamMemberDto,
+  createTeam,
+  deleteTeam,
+  findMembers,
+  getMyInvites,
+  getMyTeam,
+  getTeamRequests,
+  kickMember,
+  type MembersPage,
+  type TeamDto,
+  type TeamMemberDto,
+  type TeamRequestItem,
 } from "../api/teams";
 import { MemberCard } from "../components/team/MemberCard";
+import { TeamFilterBar } from "../components/team/TeamFilterBar";
 import { useAuth } from "../contexts/AuthContext";
 import { useNotifications } from "../contexts/NotificationsContext";
 import { getSocket } from "../services/socketService";
@@ -38,11 +44,20 @@ export function TeamManagementPage() {
   const [teamName, setTeamName] = useState("");
   const [creatingTeam, setCreatingTeam] = useState(false);
 
-  const [membersPage, setMembersPage] = useState<MembersPage | null>(null);
+  const [membersData, setMembersData] = useState<MembersPage | null>(null);
   const [membersSearch, setMembersSearch] = useState("");
   const [loadingMembers, setLoadingMembers] = useState(false);
   const membersSearchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [debouncedMembersSearch, setDebouncedMembersSearch] = useState("");
+
+  const [filterPositions, setFilterPositions] = useState<string[]>([]);
+  const [filterSkills, setFilterSkills] = useState<string[]>([]);
+  const [filterMinExp, setFilterMinExp] = useState<number | undefined>(undefined);
+  const [currentMembersPage, setCurrentMembersPage] = useState(1);
+
+  const [pendingRequests, setPendingRequests] = useState<TeamRequestItem[]>([]);
+  const [pendingInvites, setPendingInvites] = useState<TeamRequestItem[]>([]);
+  const [respondingId, setRespondingId] = useState<string | null>(null);
 
   const isParticipant = user?.role === "participant";
 
@@ -74,6 +89,20 @@ export function TeamManagementPage() {
       .catch(() => setMyTeam(null));
   }, [token, id, hackathon?.isRegistered, isParticipant]);
 
+  // Fetch pending join requests (leader) or invites (teamless participant)
+  useEffect(() => {
+    if (!token || !isParticipant || myTeam === undefined) return;
+    if (myTeam) {
+      getTeamRequests(token, myTeam.id)
+        .then(setPendingRequests)
+        .catch(() => {});
+    } else {
+      getMyInvites(token)
+        .then(setPendingInvites)
+        .catch(() => {});
+    }
+  }, [token, isParticipant, myTeam]);
+
   useEffect(() => {
     if (membersSearchRef.current) clearTimeout(membersSearchRef.current);
     membersSearchRef.current = setTimeout(() => setDebouncedMembersSearch(membersSearch), 350);
@@ -82,14 +111,25 @@ export function TeamManagementPage() {
     };
   }, [membersSearch]);
 
+  useEffect(() => {
+    setCurrentMembersPage(1);
+  }, [debouncedMembersSearch, filterPositions, filterSkills, filterMinExp]);
+
   const fetchMembers = useCallback(() => {
     if (!token || !myTeam) return;
     setLoadingMembers(true);
-    findMembers(token, myTeam.id, { name: debouncedMembersSearch || undefined, limit: 10 })
-      .then(setMembersPage)
+    findMembers(token, myTeam.id, {
+      name: debouncedMembersSearch || undefined,
+      positions: filterPositions.length > 0 ? filterPositions : undefined,
+      skills: filterSkills.length > 0 ? filterSkills : undefined,
+      minExperience: filterMinExp,
+      page: currentMembersPage,
+      limit: 10,
+    })
+      .then(setMembersData)
       .catch(() => {})
       .finally(() => setLoadingMembers(false));
-  }, [token, myTeam, debouncedMembersSearch]);
+  }, [token, myTeam, debouncedMembersSearch, filterPositions, filterSkills, filterMinExp, currentMembersPage]);
 
   useEffect(() => {
     if (activeTab === "my-team" && myTeam) fetchMembers();
@@ -129,6 +169,31 @@ export function TeamManagementPage() {
     }
   }
 
+  async function handleDeleteTeam() {
+    if (!token || !myTeam) return;
+    if (!window.confirm(t("teamManagement.confirmDelete"))) return;
+    try {
+      await deleteTeam(token, myTeam.id);
+      setMyTeam(null);
+      setActiveTab("create");
+      toast(t("teamManagement.teamDeleted"), "", "success");
+    } catch (err) {
+      toast("Error", err instanceof Error ? err.message : "Could not delete team", "destructive");
+    }
+  }
+
+  async function handleKickMember(member: TeamMemberDto) {
+    if (!token || !myTeam) return;
+    if (!window.confirm(t("teamManagement.confirmKick", { name: `${member.firstName} ${member.lastName}` }))) return;
+    try {
+      const updated = await kickMember(token, myTeam.id, member.id);
+      setMyTeam(updated);
+      toast(t("teamManagement.kicked"), `${member.firstName} ${member.lastName}`, "success");
+    } catch (err) {
+      toast("Error", err instanceof Error ? err.message : "Could not kick member", "destructive");
+    }
+  }
+
   function handleInviteMember(member: TeamMemberDto) {
     const socket = getSocket();
     if (!socket || !myTeam) return;
@@ -143,13 +208,64 @@ export function TeamManagementPage() {
     );
   }
 
+  function handleRespondJoinRequest(requestId: string, accept: boolean) {
+    const socket = getSocket();
+    if (!socket) return;
+    setRespondingId(requestId);
+    socket.emit("team:request-join:respond", { requestId, accept }, (err: string | null) => {
+      setRespondingId(null);
+      if (err) {
+        toast(t("teamManagement.requestRespondFailed"), err, "destructive");
+      } else {
+        setPendingRequests((prev) => prev.filter((r) => r.id !== requestId));
+        if (accept) {
+          // Refresh team to reflect new member
+          if (token && id) {
+            getMyTeam(token, id).then((t) => { if (t) setMyTeam(t); }).catch(() => {});
+          }
+          toast(t("teamManagement.requestAccepted"), "", "success");
+        } else {
+          toast(t("teamManagement.requestRejected"), "", "success");
+        }
+      }
+    });
+  }
+
+  function handleRespondInvite(requestId: string, accept: boolean) {
+    const socket = getSocket();
+    if (!socket) return;
+    setRespondingId(requestId);
+    socket.emit("team:invite:respond", { requestId, accept }, (err: string | null) => {
+      setRespondingId(null);
+      if (err) {
+        toast(t("teamManagement.inviteRespondFailed"), err, "destructive");
+      } else {
+        setPendingInvites((prev) => prev.filter((r) => r.id !== requestId));
+        if (accept) {
+          // Re-fetch team membership since we just joined
+          if (token && id) {
+            getMyTeam(token, id).then((t) => {
+              setMyTeam(t);
+              if (t) setActiveTab("my-team");
+            }).catch(() => {});
+          }
+          toast(t("teamManagement.inviteAccepted"), "", "success");
+        } else {
+          toast(t("teamManagement.inviteRejected"), "", "success");
+        }
+      }
+    });
+  }
+
   if (loadingHackathon || myTeam === undefined) {
     return <div className={styles.state}>{t("common.loading")}</div>;
   }
 
   if (!hackathon) return null;
 
-  const canInvite = !!myTeam && !!user && myTeam.members.length < hackathon.maxTeamSize;
+  const isLeader = !!myTeam && !!user && myTeam.leaderId === user.participant?.id;
+  const canInvite = isLeader && myTeam.members.length < hackathon.maxTeamSize;
+  const membersTotalPages = membersData ? Math.max(1, Math.ceil(membersData.total / 10)) : 1;
 
   return (
     <div className={styles.page}>
@@ -198,12 +314,65 @@ export function TeamManagementPage() {
             <Button variant="outline" size="sm" onClick={handleOpenTeamChat}>
               <MessageSquare size={14} /> {t("teamManagement.teamChat")}
             </Button>
+            {isLeader && (
+              <Button variant="destructive" size="sm" onClick={handleDeleteTeam}>
+                <Trash2 size={14} /> {t("teamManagement.deleteTeam")}
+              </Button>
+            )}
           </div>
           <div className={styles.memberList}>
             {myTeam.members.map((m) => (
-              <MemberCard key={m.id} member={m} isLeader={myTeam.leaderId === m.id} />
+              <MemberCard
+                key={m.id}
+                member={m}
+                isLeader={myTeam.leaderId === m.id}
+                action={
+                  isLeader && myTeam.leaderId !== m.id ? (
+                    <Button size="sm" variant="destructive" onClick={() => handleKickMember(m)}>
+                      <UserMinus size={13} /> {t("teamManagement.kick")}
+                    </Button>
+                  ) : undefined
+                }
+              />
             ))}
           </div>
+
+          {isLeader && pendingRequests.length > 0 && (
+            <div className={styles.requestsSection}>
+              <h3 className={styles.subTitle}>
+                <UserPlus size={16} /> {t("teamManagement.pendingRequests")}
+                <span className={styles.requestsBadge}>{pendingRequests.length}</span>
+              </h3>
+              <div className={styles.memberList}>
+                {pendingRequests.map((req) => (
+                  <MemberCard
+                    key={req.id}
+                    member={req.participant}
+                    action={
+                      <div className={styles.requestActions}>
+                        <Button
+                          size="sm"
+                          variant="default"
+                          disabled={respondingId === req.id}
+                          onClick={() => handleRespondJoinRequest(req.id, true)}
+                        >
+                          <Check size={13} /> {t("teamManagement.accept")}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          disabled={respondingId === req.id}
+                          onClick={() => handleRespondJoinRequest(req.id, false)}
+                        >
+                          <X size={13} /> {t("teamManagement.reject")}
+                        </Button>
+                      </div>
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
           {canInvite && (
             <div className={styles.inviteSection}>
@@ -216,13 +385,23 @@ export function TeamManagementPage() {
                 onChange={(e) => setMembersSearch(e.target.value)}
                 inputSize="sm"
               />
-              {loadingMembers && <p className={styles.stateSmall}>{t("teamManagement.searching")}</p>}
-              {!loadingMembers && membersPage && (
+              <TeamFilterBar
+                positions={filterPositions}
+                skills={filterSkills}
+                minExperience={filterMinExp}
+                onPositionsChange={setFilterPositions}
+                onSkillsChange={setFilterSkills}
+                onMinExperienceChange={setFilterMinExp}
+              />
+              {loadingMembers && (
+                <p className={styles.stateSmall}>{t("teamManagement.searching")}</p>
+              )}
+              {!loadingMembers && membersData && (
                 <div className={styles.memberList}>
-                  {membersPage.members.length === 0 && (
+                  {membersData.members.length === 0 && (
                     <p className={styles.stateSmall}>{t("teamManagement.noParticipants")}</p>
                   )}
-                  {membersPage.members.map((m) => (
+                  {membersData.members.map((m) => (
                     <MemberCard
                       key={m.id}
                       member={m}
@@ -235,6 +414,30 @@ export function TeamManagementPage() {
                   ))}
                 </div>
               )}
+              <div className={styles.pagination}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={currentMembersPage <= 1}
+                    onClick={() => setCurrentMembersPage((p) => p - 1)}
+                  >
+                    {t("teamSearch.prev")}
+                  </Button>
+                  <span className={styles.pageInfo}>
+                    {currentMembersPage} / {membersTotalPages}
+                    <span className={styles.totalCount}>
+                      {t("teamSearch.total", { count: membersData?.total ?? 0 })}
+                    </span>
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={currentMembersPage >= membersTotalPages}
+                    onClick={() => setCurrentMembersPage((p) => p + 1)}
+                  >
+                    {t("teamSearch.next")}
+                  </Button>
+                </div>
             </div>
           )}
         </div>
@@ -258,6 +461,48 @@ export function TeamManagementPage() {
           </form>
 
           <div className={styles.divider} />
+
+          {pendingInvites.length > 0 && (
+            <>
+              <div className={styles.invitesSection}>
+                <h3 className={styles.subTitle}>
+                  <UserPlus size={16} /> {t("teamManagement.pendingInvites")}
+                  <span className={styles.requestsBadge}>{pendingInvites.length}</span>
+                </h3>
+                <div className={styles.memberList}>
+                  {pendingInvites.map((inv) => (
+                    <div key={inv.id} className={styles.inviteRow}>
+                      <Link
+                        to={`/hackathons/${inv.hackathonId}/team/search?name=${encodeURIComponent(inv.teamName)}`}
+                        className={styles.inviteTeamName}
+                      >
+                        {inv.teamName}
+                      </Link>
+                      <div className={styles.requestActions}>
+                        <Button
+                          size="sm"
+                          variant="default"
+                          disabled={respondingId === inv.id}
+                          onClick={() => handleRespondInvite(inv.id, true)}
+                        >
+                          <Check size={13} /> {t("teamManagement.accept")}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          disabled={respondingId === inv.id}
+                          onClick={() => handleRespondInvite(inv.id, false)}
+                        >
+                          <X size={13} /> {t("teamManagement.reject")}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className={styles.divider} />
+            </>
+          )}
 
           <div className={styles.searchPrompt}>
             <p className={styles.searchPromptText}>{t("teamManagement.orFindTeam")}</p>
