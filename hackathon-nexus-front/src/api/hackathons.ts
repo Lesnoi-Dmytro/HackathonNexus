@@ -58,6 +58,16 @@ export interface ListHackathonsParams {
   limit?: number;
 }
 
+export interface CreateHackathonPayload {
+  title: string;
+  description: string;
+  topic: HackathonTopic;
+  startDate: string;
+  durationHours: number;
+  maxTeamSize: number;
+  maxParticipants?: number;
+}
+
 import { request } from "./client";
 
 export async function listHackathons(
@@ -87,4 +97,14 @@ export function registerForHackathon(token: string, id: string): Promise<Hackath
 
 export function unregisterFromHackathon(token: string, id: string): Promise<void> {
   return request<void>(`/hackathons/${id}/register`, token, { method: "DELETE" });
+}
+
+export function createHackathon(
+  token: string,
+  payload: CreateHackathonPayload,
+): Promise<HackathonDto> {
+  return request<HackathonDto>("/hackathons", token, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 }

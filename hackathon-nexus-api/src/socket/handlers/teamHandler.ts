@@ -6,11 +6,11 @@ import { TeamRequest } from "../../entities/TeamRequest";
 import { TeamRequestStatus, TeamRequestType, UserRole } from "../../models/enums";
 import { sendNotification } from "../sendNotification";
 import {
-    AuthenticatedSocket,
-    ClientToServerEvents,
-    InterServerEvents,
-    ServerToClientEvents,
-    SocketData,
+  AuthenticatedSocket,
+  ClientToServerEvents,
+  InterServerEvents,
+  ServerToClientEvents,
+  SocketData,
 } from "../types";
 
 type IoServer = Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
@@ -218,7 +218,14 @@ export function registerTeamHandlers(io: IoServer, socket: AuthenticatedSocket):
 
       const request = await requestRepo.findOne({
         where: { id: requestId, type: TeamRequestType.INVITE },
-        relations: ["team", "team.hackathon", "team.leader", "team.leader.user", "team.members", "participant"],
+        relations: [
+          "team",
+          "team.hackathon",
+          "team.leader",
+          "team.leader.user",
+          "team.members",
+          "participant",
+        ],
       });
 
       if (!request) return ack("Invite not found");

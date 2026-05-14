@@ -154,29 +154,29 @@ export function TeamSearchPage() {
         ))}
 
       <div className={styles.pagination}>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            {t("teamSearch.prev")}
-          </Button>
-          <span className={styles.pageInfo}>
-            {page} / {totalPages}
-            <span className={styles.totalCount}>
-              {t("teamSearch.total", { count: teamsPage?.total ?? 0 })}
-            </span>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={page <= 1}
+          onClick={() => setPage((p) => p - 1)}
+        >
+          {t("teamSearch.prev")}
+        </Button>
+        <span className={styles.pageInfo}>
+          {page} / {totalPages}
+          <span className={styles.totalCount}>
+            {t("teamSearch.total", { count: teamsPage?.total ?? 0 })}
           </span>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page >= totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            {t("teamSearch.next")}
-          </Button>
-        </div>
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={page >= totalPages}
+          onClick={() => setPage((p) => p + 1)}
+        >
+          {t("teamSearch.next")}
+        </Button>
+      </div>
     </div>
   );
 }

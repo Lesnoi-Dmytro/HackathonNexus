@@ -71,9 +71,7 @@ export class ChatService {
       nameMap = new Map(teams.map((t) => [t.id, t.name]));
     }
 
-    return rooms.map((r) =>
-      this.toRoomDto(r, r.teamId ? nameMap.get(r.teamId) : undefined),
-    );
+    return rooms.map((r) => this.toRoomDto(r, r.teamId ? nameMap.get(r.teamId) : undefined));
   }
 
   // ── Get or create TEAM room ───────────────────────────────────────────────

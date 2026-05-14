@@ -106,11 +106,7 @@ export function deleteTeam(token: string, teamId: string): Promise<void> {
   return request<void>(`/teams/${teamId}`, token, { method: "DELETE" });
 }
 
-export function kickMember(
-  token: string,
-  teamId: string,
-  participantId: string,
-): Promise<TeamDto> {
+export function kickMember(token: string, teamId: string, participantId: string): Promise<TeamDto> {
   return request<TeamDto>(`/teams/${teamId}/members/${participantId}`, token, {
     method: "DELETE",
   });

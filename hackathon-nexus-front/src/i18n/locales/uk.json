@@ -203,5 +203,24 @@
     "skillsLabel": "Навички",
     "saveError": "Не вдалося зберегти профіль",
     "saveSuccess": "Профіль оновлено"
+  },
+  "createHackathon": {
+    "title": "Створити хакатон",
+    "backToHackathons": "До хакатонів",
+    "fieldTitle": "Назва",
+    "fieldTitlePlaceholder": "напр. AI Innovation Sprint",
+    "fieldDescription": "Опис",
+    "fieldDescriptionPlaceholder": "Опишіть цілі, завдання та призи хакатону…",
+    "fieldTopic": "Тематика",
+    "fieldStartDate": "Дата та час початку",
+    "fieldDurationHours": "Тривалість (годин)",
+    "fieldMaxTeamSize": "Макс. розмір команди",
+    "fieldMaxParticipants": "Макс. учасників (необов'язково)",
+    "fieldMaxParticipantsPlaceholder": "Залиште порожнім для необмеженої кількості",
+    "submit": "Створити хакатон",
+    "submitting": "Створення…",
+    "successTitle": "Хакатон створено",
+    "successMessage": "\"{{title}}\" успішно створено",
+    "errorTitle": "Не вдалося створити хакатон"
   }
 }

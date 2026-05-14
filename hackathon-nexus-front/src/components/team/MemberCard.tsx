@@ -19,20 +19,12 @@ function SkillsList({ skills }: { skills: string[] }) {
         </span>
       ))}
       {overflow > 0 && !showAll && (
-        <button
-          type="button"
-          className={styles.skillChipToggle}
-          onClick={() => setShowAll(true)}
-        >
+        <button type="button" className={styles.skillChipToggle} onClick={() => setShowAll(true)}>
           +{overflow}
         </button>
       )}
       {showAll && overflow > 0 && (
-        <button
-          type="button"
-          className={styles.skillChipToggle}
-          onClick={() => setShowAll(false)}
-        >
+        <button type="button" className={styles.skillChipToggle} onClick={() => setShowAll(false)}>
           &minus;
         </button>
       )}
@@ -68,9 +60,7 @@ export function MemberCard({
           )}
         </span>
         {member.position && <span className={styles.memberPosition}>{member.position}</span>}
-        {member.skills.length > 0 && (
-          <SkillsList skills={member.skills} />
-        )}
+        {member.skills.length > 0 && <SkillsList skills={member.skills} />}
       </div>
       {action && <div className={styles.memberAction}>{action}</div>}
     </div>

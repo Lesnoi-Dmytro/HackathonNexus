@@ -131,7 +131,12 @@ export function HackathonDetailPage() {
         <MetaCard
           icon={<Flag size={18} />}
           label={t("hackathonDetail.ends")}
-          value={formatDateLong(new Date(new Date(hackathon.startDate).getTime() + hackathon.durationHours * 3_600_000).toISOString(), i18n.language)}
+          value={formatDateLong(
+            new Date(
+              new Date(hackathon.startDate).getTime() + hackathon.durationHours * 3_600_000,
+            ).toISOString(),
+            i18n.language,
+          )}
         />
         <MetaCard
           icon={<Clock size={18} />}

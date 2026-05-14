@@ -201,5 +201,24 @@
     "skillsLabel": "Skills",
     "saveError": "Failed to save profile",
     "saveSuccess": "Profile updated"
+  },
+  "createHackathon": {
+    "title": "Create Hackathon",
+    "backToHackathons": "Back to hackathons",
+    "fieldTitle": "Title",
+    "fieldTitlePlaceholder": "e.g. AI Innovation Sprint",
+    "fieldDescription": "Description",
+    "fieldDescriptionPlaceholder": "Describe the hackathon goals, tasks and prizes…",
+    "fieldTopic": "Topic",
+    "fieldStartDate": "Start date & time",
+    "fieldDurationHours": "Duration (hours)",
+    "fieldMaxTeamSize": "Max team size",
+    "fieldMaxParticipants": "Max participants (optional)",
+    "fieldMaxParticipantsPlaceholder": "Leave empty for unlimited",
+    "submit": "Create Hackathon",
+    "submitting": "Creating…",
+    "successTitle": "Hackathon created",
+    "successMessage": "\"{{title}}\" has been created successfully",
+    "errorTitle": "Failed to create hackathon"
   }
 }

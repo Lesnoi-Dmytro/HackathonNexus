@@ -98,9 +98,7 @@ export function notificationText(
 }
 
 /** Returns a secondary entity link shown inline in the notification (profile or team page). */
-export function notificationEntityLink(
-  n: AppNotification,
-): { label: string; url: string } | null {
+export function notificationEntityLink(n: AppNotification): { label: string; url: string } | null {
   switch (n.type) {
     case "team:join-request":
       return {

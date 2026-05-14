@@ -1,4 +1,13 @@
-import { Check, ChevronLeft, MessageSquare, Search, Trash2, UserMinus, UserPlus, X } from "lucide-react";
+import {
+  Check,
+  ChevronLeft,
+  MessageSquare,
+  Search,
+  Trash2,
+  UserMinus,
+  UserPlus,
+  X,
+} from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -129,7 +138,15 @@ export function TeamManagementPage() {
       .then(setMembersData)
       .catch(() => {})
       .finally(() => setLoadingMembers(false));
-  }, [token, myTeam, debouncedMembersSearch, filterPositions, filterSkills, filterMinExp, currentMembersPage]);
+  }, [
+    token,
+    myTeam,
+    debouncedMembersSearch,
+    filterPositions,
+    filterSkills,
+    filterMinExp,
+    currentMembersPage,
+  ]);
 
   useEffect(() => {
     if (activeTab === "my-team" && myTeam) fetchMembers();
@@ -184,7 +201,12 @@ export function TeamManagementPage() {
 
   async function handleKickMember(member: TeamMemberDto) {
     if (!token || !myTeam) return;
-    if (!window.confirm(t("teamManagement.confirmKick", { name: `${member.firstName} ${member.lastName}` }))) return;
+    if (
+      !window.confirm(
+        t("teamManagement.confirmKick", { name: `${member.firstName} ${member.lastName}` }),
+      )
+    )
+      return;
     try {
       const updated = await kickMember(token, myTeam.id, member.id);
       setMyTeam(updated);
@@ -221,7 +243,11 @@ export function TeamManagementPage() {
         if (accept) {
           // Refresh team to reflect new member
           if (token && id) {
-            getMyTeam(token, id).then((t) => { if (t) setMyTeam(t); }).catch(() => {});
+            getMyTeam(token, id)
+              .then((t) => {
+                if (t) setMyTeam(t);
+              })
+              .catch(() => {});
           }
           toast(t("teamManagement.requestAccepted"), "", "success");
         } else {
@@ -244,10 +270,12 @@ export function TeamManagementPage() {
         if (accept) {
           // Re-fetch team membership since we just joined
           if (token && id) {
-            getMyTeam(token, id).then((t) => {
-              setMyTeam(t);
-              if (t) setActiveTab("my-team");
-            }).catch(() => {});
+            getMyTeam(token, id)
+              .then((t) => {
+                setMyTeam(t);
+                if (t) setActiveTab("my-team");
+              })
+              .catch(() => {});
           }
           toast(t("teamManagement.inviteAccepted"), "", "success");
         } else {
@@ -415,29 +443,29 @@ export function TeamManagementPage() {
                 </div>
               )}
               <div className={styles.pagination}>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={currentMembersPage <= 1}
-                    onClick={() => setCurrentMembersPage((p) => p - 1)}
-                  >
-                    {t("teamSearch.prev")}
-                  </Button>
-                  <span className={styles.pageInfo}>
-                    {currentMembersPage} / {membersTotalPages}
-                    <span className={styles.totalCount}>
-                      {t("teamSearch.total", { count: membersData?.total ?? 0 })}
-                    </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentMembersPage <= 1}
+                  onClick={() => setCurrentMembersPage((p) => p - 1)}
+                >
+                  {t("teamSearch.prev")}
+                </Button>
+                <span className={styles.pageInfo}>
+                  {currentMembersPage} / {membersTotalPages}
+                  <span className={styles.totalCount}>
+                    {t("teamSearch.total", { count: membersData?.total ?? 0 })}
                   </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={currentMembersPage >= membersTotalPages}
-                    onClick={() => setCurrentMembersPage((p) => p + 1)}
-                  >
-                    {t("teamSearch.next")}
-                  </Button>
-                </div>
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentMembersPage >= membersTotalPages}
+                  onClick={() => setCurrentMembersPage((p) => p + 1)}
+                >
+                  {t("teamSearch.next")}
+                </Button>
+              </div>
             </div>
           )}
         </div>

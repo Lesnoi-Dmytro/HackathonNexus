@@ -1,8 +1,8 @@
 import { AppDataSource } from "../data-source";
 import {
-    CreateHackathonDto,
-    ListHackathonsQueryDto,
-    UpdateHackathonDto,
+  CreateHackathonDto,
+  ListHackathonsQueryDto,
+  UpdateHackathonDto,
 } from "../dto/hackathon.dto";
 import { HackathonDto, HackathonsPageDto } from "../dto/response.dto";
 import { Hackathon } from "../entities/Hackathon";

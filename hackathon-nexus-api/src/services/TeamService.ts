@@ -185,18 +185,17 @@ export class TeamService {
 
     if (!hasSkillFilter || !hasPositionFilter) {
       try {
-        const participant = await this.participantRepo.findOne({ where: { user: { id: user.id } } });
+        const participant = await this.participantRepo.findOne({
+          where: { user: { id: user.id } },
+        });
         if (participant) {
-          const rec = await fetchRecommendations(
-            hackathon.topic,
-            hackathon.maxTeamSize,
-            [{ skills: participant.skills, position: participant.position }],
-          );
+          const rec = await fetchRecommendations(hackathon.topic, hackathon.maxTeamSize, [
+            { skills: participant.skills, position: participant.position },
+          ]);
           if (!hasSkillFilter) scoreSkills = rec.recommended_skills.map((s) => s.skill);
           if (!hasPositionFilter) scorePositions = rec.recommended_positions.map((p) => p.position);
         }
-      } catch {
-      }
+      } catch {}
     }
 
     const hasScoreSkills = (scoreSkills?.length ?? 0) > 0;
@@ -220,7 +219,8 @@ export class TeamService {
       if (hasSkillFilter || hasPositionFilter) {
         const filterParts: string[] = [];
         if (hasSkillFilter && skillRef) filterParts.push(`p.skills::text[] && ${skillRef}::text[]`);
-        if (hasPositionFilter && posRef) filterParts.push(`p.position::text = ANY(${posRef}::text[])`);
+        if (hasPositionFilter && posRef)
+          filterParts.push(`p.position::text = ANY(${posRef}::text[])`);
 
         filterExistsCond = `AND EXISTS (
         SELECT 1 FROM team_members tm_f
@@ -413,8 +413,7 @@ export class TeamService {
         );
         if (!hasSkillFilter) scoreSkills = rec.recommended_skills.map((s) => s.skill);
         if (!hasPositionFilter) scorePositions = rec.recommended_positions.map((p) => p.position);
-      } catch {
-      }
+      } catch {}
     }
 
     const hasScoreSkills = (scoreSkills?.length ?? 0) > 0;
@@ -438,7 +437,8 @@ export class TeamService {
       if (hasSkillFilter || hasPositionFilter) {
         const filterParts: string[] = [];
         if (hasSkillFilter && skillRef) filterParts.push(`p.skills::text[] && ${skillRef}::text[]`);
-        if (hasPositionFilter && posRef) filterParts.push(`p.position::text = ANY(${posRef}::text[])`);
+        if (hasPositionFilter && posRef)
+          filterParts.push(`p.position::text = ANY(${posRef}::text[])`);
         filterCond = `AND (${filterParts.join(" OR ")})`;
       }
 

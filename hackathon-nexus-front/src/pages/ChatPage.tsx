@@ -427,7 +427,7 @@ export function ChatPage() {
                         </button>
                       )}
                       <div className={styles.msgBody}>
-                      {showSender && !isMine && (
+                        {showSender && !isMine && (
                           <button
                             type="button"
                             className={styles.senderName}

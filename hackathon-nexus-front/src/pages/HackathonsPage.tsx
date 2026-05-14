@@ -1,5 +1,7 @@
+import { Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import {
   ALL_TOPICS,
   listHackathons,
@@ -17,6 +19,7 @@ const PAGE_SIZE = 12;
 export function HackathonsPage() {
   const { token, user } = useAuth();
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const [result, setResult] = useState<HackathonsPage>({
     data: [],
@@ -25,6 +28,7 @@ export function HackathonsPage() {
     limit: PAGE_SIZE,
   });
   const isParticipant = user?.role === "participant";
+  const isAdmin = user?.role === "hackathon-admin";
 
   const [activeTopic, setActiveTopic] = useState<HackathonTopic | undefined>(undefined);
   const [search, setSearch] = useState("");
@@ -114,6 +118,13 @@ export function HackathonsPage() {
               inputSize="sm"
             />
           </div>
+
+          {isAdmin && (
+            <Button size="sm" onClick={() => navigate("/hackathons/new")}>
+              <Plus size={15} />
+              {t("createHackathon.title")}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -156,29 +167,29 @@ export function HackathonsPage() {
 
       {/* Pagination */}
       <div className={styles.pagination}>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            {t("hackathons.prev")}
-          </Button>
-          <span className={styles.pageInfo}>
-            {page} / {totalPages}
-            <span className={styles.totalCount}>
-              {t("hackathons.total", { count: result.total })}
-            </span>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={page <= 1}
+          onClick={() => setPage((p) => p - 1)}
+        >
+          {t("hackathons.prev")}
+        </Button>
+        <span className={styles.pageInfo}>
+          {page} / {totalPages}
+          <span className={styles.totalCount}>
+            {t("hackathons.total", { count: result.total })}
           </span>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page >= totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            {t("hackathons.next")}
-          </Button>
-        </div>
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={page >= totalPages}
+          onClick={() => setPage((p) => p + 1)}
+        >
+          {t("hackathons.next")}
+        </Button>
+      </div>
     </div>
   );
 }

@@ -27,19 +27,91 @@ const ALL_POSITIONS = [
 ];
 
 const ALL_SKILLS = [
-  "Python","JavaScript","TypeScript","Java","C++","Go","Swift","Kotlin","Rust","C#","Ruby","PHP","Scala","R",
-  "React","Vue.js","Angular","Svelte","Next.js","Tailwind CSS",
-  "Node.js","Django","FastAPI","Spring Boot","Express.js","Flask","GraphQL","REST API Design","gRPC",
-  "PostgreSQL","MySQL","MongoDB","Redis","Elasticsearch","Cassandra","SQLite","Neo4j",
-  "Docker","Kubernetes","AWS","GCP","Azure","Linux","Git","Terraform","CI/CD","Ansible",
-  "TensorFlow","PyTorch","scikit-learn","NLP","LLM Fine-tuning","Computer Vision","Pandas","NumPy","Spark","Kafka","Data Visualization","Feature Engineering",
-  "React Native","Flutter","SwiftUI","Jetpack Compose",
-  "Solidity","Web3.js","Hardhat",
-  "Arduino","Embedded C","FPGA","RTOS",
-  "Unity","Unreal Engine","WebGL",
-  "Figma","UI/UX Design","Prototyping","User Research",
-  "Penetration Testing","Cryptography","OAuth/OIDC",
-  "Unit Testing","Agile / Scrum","System Design","Technical Writing","Monitoring / Observability",
+  "Python",
+  "JavaScript",
+  "TypeScript",
+  "Java",
+  "C++",
+  "Go",
+  "Swift",
+  "Kotlin",
+  "Rust",
+  "C#",
+  "Ruby",
+  "PHP",
+  "Scala",
+  "R",
+  "React",
+  "Vue.js",
+  "Angular",
+  "Svelte",
+  "Next.js",
+  "Tailwind CSS",
+  "Node.js",
+  "Django",
+  "FastAPI",
+  "Spring Boot",
+  "Express.js",
+  "Flask",
+  "GraphQL",
+  "REST API Design",
+  "gRPC",
+  "PostgreSQL",
+  "MySQL",
+  "MongoDB",
+  "Redis",
+  "Elasticsearch",
+  "Cassandra",
+  "SQLite",
+  "Neo4j",
+  "Docker",
+  "Kubernetes",
+  "AWS",
+  "GCP",
+  "Azure",
+  "Linux",
+  "Git",
+  "Terraform",
+  "CI/CD",
+  "Ansible",
+  "TensorFlow",
+  "PyTorch",
+  "scikit-learn",
+  "NLP",
+  "LLM Fine-tuning",
+  "Computer Vision",
+  "Pandas",
+  "NumPy",
+  "Spark",
+  "Kafka",
+  "Data Visualization",
+  "Feature Engineering",
+  "React Native",
+  "Flutter",
+  "SwiftUI",
+  "Jetpack Compose",
+  "Solidity",
+  "Web3.js",
+  "Hardhat",
+  "Arduino",
+  "Embedded C",
+  "FPGA",
+  "RTOS",
+  "Unity",
+  "Unreal Engine",
+  "WebGL",
+  "Figma",
+  "UI/UX Design",
+  "Prototyping",
+  "User Research",
+  "Penetration Testing",
+  "Cryptography",
+  "OAuth/OIDC",
+  "Unit Testing",
+  "Agile / Scrum",
+  "System Design",
+  "Technical Writing",
+  "Monitoring / Observability",
 ];
 
 export function UserProfilePage() {
@@ -218,11 +290,8 @@ export function UserProfilePage() {
         <div className={styles.editForm}>
           <div className={styles.editFormHeader}>
             <h2 className={styles.editFormTitle}>{t("userProfile.editProfile")}</h2>
-            <button
-              type="button"
-              className={styles.closeEditBtn}
-              onClick={() => closeEdit()}>
-                <X size={18} />
+            <button type="button" className={styles.closeEditBtn} onClick={() => closeEdit()}>
+              <X size={18} />
             </button>
           </div>
 
@@ -272,7 +341,11 @@ export function UserProfilePage() {
                 {editSkills.map((s) => (
                   <span key={s} className={styles.selectedSkillChip}>
                     {s}
-                    <button type="button" onClick={() => toggleSkill(s)} className={styles.removeSkillBtn}>
+                    <button
+                      type="button"
+                      onClick={() => toggleSkill(s)}
+                      className={styles.removeSkillBtn}
+                    >
                       <X size={10} />
                     </button>
                   </span>

@@ -108,9 +108,7 @@ export class TeamController {
       "200": { description: "List of pending invites" },
     },
   })
-  async getMyInvites(
-    @CurrentUser({ required: true }) user: User,
-  ): Promise<TeamRequestItemDto[]> {
+  async getMyInvites(@CurrentUser({ required: true }) user: User): Promise<TeamRequestItemDto[]> {
     return this.teamService.getMyInvites(user);
   }
 

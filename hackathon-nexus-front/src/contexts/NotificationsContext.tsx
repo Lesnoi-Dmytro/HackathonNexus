@@ -1,23 +1,23 @@
 import {
-    createContext,
-    useCallback,
-    useContext,
-    useEffect,
-    useRef,
-    useState,
-    type ReactNode,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
 import { getNotifications, markNotificationRead, type NotificationDto } from "../api/notifications";
 import { notificationText, type AppNotification } from "../api/notifications.types";
 import { connectSocket, disconnectSocket } from "../services/socketService";
 import {
-    Toast,
-    ToastClose,
-    ToastDescription,
-    ToastProvider,
-    ToastTitle,
-    ToastViewport,
+  Toast,
+  ToastClose,
+  ToastDescription,
+  ToastProvider,
+  ToastTitle,
+  ToastViewport,
 } from "../shared/ui/Toast";
 
 /* ── Toast state ─────────────────────────────────────────────── */

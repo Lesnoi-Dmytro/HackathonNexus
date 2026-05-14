@@ -123,7 +123,9 @@ export function AppLayout() {
                               <span
                                 className={`${styles.notifDot} ${n.read ? styles.notifDotRead : ""}`}
                               />
-                              <span className={styles.notifText}>{notificationText(n.payload, t)}</span>
+                              <span className={styles.notifText}>
+                                {notificationText(n.payload, t)}
+                              </span>
                               <div className={styles.notifMeta}>
                                 <span className={styles.notifTime}>{timeAgo(n.createdAt, t)}</span>
                                 {link && <span className={styles.notifArrow}>›</span>}

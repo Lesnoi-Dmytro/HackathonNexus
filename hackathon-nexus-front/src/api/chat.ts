@@ -39,10 +39,7 @@ export function getOrCreateTeamRoom(token: string, teamId: string): Promise<Chat
   return request<ChatRoomDto>(`/chat/rooms/team/${teamId}`, token, { method: "POST" });
 }
 
-export function getOrCreateDirectRoom(
-  token: string,
-  targetUserId: string,
-): Promise<ChatRoomDto> {
+export function getOrCreateDirectRoom(token: string, targetUserId: string): Promise<ChatRoomDto> {
   return request<ChatRoomDto>("/chat/rooms/direct", token, {
     method: "POST",
     body: JSON.stringify({ targetUserId }),

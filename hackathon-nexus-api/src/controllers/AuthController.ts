@@ -1,13 +1,13 @@
 import {
-    Authorized,
-    Body,
-    CurrentUser,
-    Get,
-    HttpCode,
-    JsonController,
-    Param,
-    Patch,
-    Post,
+  Authorized,
+  Body,
+  CurrentUser,
+  Get,
+  HttpCode,
+  JsonController,
+  Param,
+  Patch,
+  Post,
 } from "routing-controllers";
 import { OpenAPI } from "routing-controllers-openapi";
 import { LoginDto, RegisterDto, UpdateParticipantDto } from "../dto/auth.dto";
