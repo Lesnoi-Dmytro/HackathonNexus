@@ -1,6 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,pycharm,node,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,pycharm,node,python
 
+report
+
 ### Custom ###
 __pycache__
 .idea
