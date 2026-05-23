@@ -9,6 +9,7 @@ import { useNotifications } from "../contexts/NotificationsContext";
 import { Button } from "../shared/ui/Button";
 import styles from "./AppLayout.module.css";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { ThemeToggle } from "./ThemeToggle";
 
 function timeAgo(iso: string, t: (key: string, opts?: Record<string, unknown>) => string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -165,6 +166,7 @@ export function AppLayout() {
               </Button>
             </>
           )}
+          <ThemeToggle />
           <LanguageSwitcher />
         </div>
       </header>

@@ -1,6 +1,8 @@
 services:
   postgres:
     image: postgres:18.3-alpine
+    networks:
+      - app-net
     ports:
       - "5432:5432"
     environment:
@@ -17,6 +19,8 @@ services:
 
   redis:
     image: redis:8.6.2-alpine
+    networks:
+      - app-net
     ports:
       - "6379:6379"
     volumes:
@@ -29,6 +33,8 @@ services:
 
   hackathon-nexus-api:
     build: ./hackathon-nexus-api
+    networks:
+      - app-net
     ports:
       - "${API_PORT:-3000}:3000"
     env_file:
@@ -49,6 +55,8 @@ services:
       context: ./hackathon-nexus-front
       args:
         VITE_API_URL: "http://localhost:3000/api"
+    networks:
+      - app-net
     ports:
       - "${FRONT_PORT:-5173}:80"
     depends_on:
@@ -56,6 +64,8 @@ services:
 
   redis-ui:
     image: redis/redisinsight:latest
+    networks:
+      - app-net
     ports:
       - "${REDIS_UI_PORT:-5540}:5540"
     depends_on:
@@ -64,8 +74,10 @@ services:
 
   recommendation-api:
     build: ./recommendation-api
+    networks:
+      - app-net
     ports:
-      - "${PORT:-8000}:8000"
+      - "${RECOMMEND_PORT:-8000}:8000"
     env_file:
       - ./recommendation-api/.env
     environment:
@@ -78,3 +90,6 @@ services:
 volumes:
   postgres_data:
   redis_data:
+networks:
+  app-net:
+    driver: bridge

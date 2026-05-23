@@ -46,12 +46,15 @@ async function bootstrap(): Promise<void> {
     .split(",")
     .map((o) => o.trim());
 
-  app.use(
-    cors({
-      origin: allowedOrigins,
-      credentials: true,
-    }),
-  );
+  const corsOptions = {
+    origin: allowedOrigins,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  };
+
+  app.use(cors(corsOptions));
+  app.options(/.*/, cors(corsOptions));
 
   useExpressServer(app, routingControllersOptions);
 

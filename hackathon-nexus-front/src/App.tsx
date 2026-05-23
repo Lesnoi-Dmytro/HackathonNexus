@@ -3,6 +3,7 @@ import { AppLayout } from "./components/AppLayout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { NotificationsProvider } from "./contexts/NotificationsContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import { ChatPage } from "./pages/ChatPage";
 import { CreateHackathonPage } from "./pages/CreateHackathonPage";
 import { HackathonDetailPage } from "./pages/HackathonDetailPage";
@@ -41,9 +42,11 @@ function AppRoutes() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
