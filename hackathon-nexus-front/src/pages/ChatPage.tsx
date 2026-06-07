@@ -91,6 +91,20 @@ export function ChatPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
+  // ── Join chat room on socket ──────────────────────────────────────────────
+
+  useEffect(() => {
+    if (!activeRoomId) return;
+    const socket = getSocket();
+    if (!socket) return;
+
+    socket.emit("chat:join", { roomId: activeRoomId }, (err) => {
+      if (err) {
+        console.error("[Chat] Failed to join room:", err);
+      }
+    });
+  }, [activeRoomId]);
+
   // ── Load messages when room changes ────────────────────────────────────────
 
   useEffect(() => {

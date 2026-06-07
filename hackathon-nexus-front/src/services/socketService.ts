@@ -25,6 +25,10 @@ export interface ClientToServerEvents {
     payload: { roomId: string; content: string },
     ack: (err: string | null) => void,
   ) => void;
+  "chat:join": (
+    payload: { roomId: string },
+    ack: (err: string | null) => void,
+  ) => void;
 }
 
 export type AppSocket = Socket<ServerToClientEvents, ClientToServerEvents>;

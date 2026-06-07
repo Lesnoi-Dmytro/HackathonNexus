@@ -32,6 +32,12 @@ export interface ClientToServerEvents {
     payload: { roomId: string; content: string },
     ack: (err: string | null) => void,
   ) => void;
+
+  /** Join a chat room to receive messages. */
+  "chat:join": (
+    payload: { roomId: string },
+    ack: (err: string | null) => void,
+  ) => void;
 }
 
 export interface ServerToClientEvents {

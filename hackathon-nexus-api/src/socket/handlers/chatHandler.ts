@@ -13,6 +13,19 @@ type IoServer = Server<ClientToServerEvents, ServerToClientEvents, InterServerEv
 export function registerChatHandlers(io: IoServer, socket: AuthenticatedSocket): void {
   const chatService = new ChatService();
 
+  socket.on("chat:join", async ({ roomId }, ack) => {
+    try {
+      const isMember = await chatService.isRoomMember(roomId, socket.user.id);
+      if (!isMember) return ack("You are not a member of this room");
+
+      socket.join(`chat:${roomId}`);
+      ack(null);
+    } catch (err) {
+      console.error("[WS] chat:join error", err);
+      ack("Internal server error");
+    }
+  });
+
   socket.on("chat:send", async ({ roomId, content }, ack) => {
     try {
       const trimmed = content?.trim();

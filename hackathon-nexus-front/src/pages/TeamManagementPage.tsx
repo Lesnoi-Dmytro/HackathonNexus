@@ -48,6 +48,7 @@ export function TeamManagementPage() {
   const [loadingHackathon, setLoadingHackathon] = useState(true);
 
   const [myTeam, setMyTeam] = useState<TeamDto | null | undefined>(undefined);
+  const [loadingMyTeam, setLoadingMyTeam] = useState(false);
   const [activeTab, setActiveTab] = useState<TeamTab>("create");
 
   const [teamName, setTeamName] = useState("");
@@ -90,13 +91,19 @@ export function TeamManagementPage() {
 
   useEffect(() => {
     if (!token || !id || !hackathon?.isRegistered || !isParticipant) return;
+    setLoadingMyTeam(true);
     getMyTeam(token, id)
       .then((t) => {
-        setMyTeam(t);
+        setMyTeam(t ?? null);
         setActiveTab(t ? "my-team" : "create");
       })
-      .catch(() => setMyTeam(null));
-  }, [token, id, hackathon?.isRegistered, isParticipant]);
+      .catch((err) => {
+        console.error("Failed to fetch team:", err);
+        // Don't set to null on error - retain previous state
+        // This prevents clearing a valid team on transient failures
+      })
+      .finally(() => setLoadingMyTeam(false));
+  }, [token, id, hackathon, isParticipant]);
 
   // Fetch pending join requests (leader) or invites (teamless participant)
   useEffect(() => {
@@ -247,7 +254,9 @@ export function TeamManagementPage() {
               .then((t) => {
                 if (t) setMyTeam(t);
               })
-              .catch(() => {});
+              .catch((err) => {
+                console.error("Failed to refresh team after accept:", err);
+              });
           }
           toast(t("teamManagement.requestAccepted"), "", "success");
         } else {
@@ -275,7 +284,9 @@ export function TeamManagementPage() {
                 setMyTeam(t);
                 if (t) setActiveTab("my-team");
               })
-              .catch(() => {});
+              .catch((err) => {
+                console.error("Failed to refresh team after invite accept:", err);
+              });
           }
           toast(t("teamManagement.inviteAccepted"), "", "success");
         } else {
@@ -285,7 +296,7 @@ export function TeamManagementPage() {
     });
   }
 
-  if (loadingHackathon || myTeam === undefined) {
+  if (loadingHackathon || loadingMyTeam || myTeam === undefined) {
     return <div className={styles.state}>{t("common.loading")}</div>;
   }
 
