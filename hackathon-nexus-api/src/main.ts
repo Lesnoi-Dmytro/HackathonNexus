@@ -10,6 +10,7 @@ import swaggerUi from "swagger-ui-express";
 import { AuthController } from "./controllers/AuthController";
 import { ChatController } from "./controllers/ChatController";
 import { HackathonController } from "./controllers/HackathonController";
+import { HealthController } from "./controllers/HealthController";
 import { NotificationController } from "./controllers/NotificationController";
 import { TeamController } from "./controllers/TeamController";
 import { AppDataSource } from "./data-source";
@@ -26,6 +27,7 @@ const routingControllersOptions: RoutingControllersOptions = {
     TeamController,
     NotificationController,
     ChatController,
+    HealthController,
   ],
   authorizationChecker,
   currentUserChecker,

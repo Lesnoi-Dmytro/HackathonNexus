@@ -3,11 +3,6 @@
 
 report
 
-### Custom ###
-__pycache__
-.idea
-recommendation-api/models/output
-
 ### Node ###
 # Logs
 logs
@@ -188,7 +183,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
+recommendation-api/build/
 develop-eggs/
 dist/
 downloads/
@@ -366,3 +361,11 @@ pyrightconfig.json
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/
+cdk.out
+
+### Custom ###
+__pycache__
+.idea
+recommendation-api/models/output
+!cdk/*/lib/
+cdk/*/build_tmp

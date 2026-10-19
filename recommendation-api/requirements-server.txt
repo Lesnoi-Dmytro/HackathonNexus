@@ -8,5 +8,7 @@ torch==2.11.0+cpu
 --extra-index-url https://pypi.org/simple
 torch-geometric==2.7.0
 numpy==2.4.4
+scikit-learn==1.8.0
+joblib==1.5.3
 redis==5.2.1
 httpx==0.28.1

@@ -9,6 +9,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USER || "postgres",
   password: process.env.DB_PASSWORD || "postgres",
   database: process.env.DB_NAME || "hackathon_nexus",
+  ssl: { rejectUnauthorized: false },
   synchronize: false,
   migrationsRun: true,
   logging: process.env.NODE_ENV === "development",
