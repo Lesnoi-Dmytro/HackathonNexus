@@ -50,7 +50,7 @@ export class EC2Stack extends Stack {
       mainApiSecurityGroup: vpcResources.mainApiSecurityGroup,
       sshPubKeyPath,
       cpuType: AmazonLinuxCpuType.X86_64,
-      instanceSize: InstanceSize.MEDIUM,
+      instanceSize: InstanceSize.MICRO,
     });
     console.log('Initialized Recommendations API');
 

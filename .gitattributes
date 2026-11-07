@@ -1,0 +1,4 @@
+# Files executed or parsed on Linux (CodeDeploy hooks, systemd units, specs) must keep LF line endings.
+*.sh text eol=lf
+*.service text eol=lf
+cdk/ec2-ci-cd/assets/** text eol=lf

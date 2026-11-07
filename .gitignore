@@ -366,6 +366,10 @@ cdk.out
 ### Custom ###
 __pycache__
 .idea
-recommendation-api/models/output
+recommendation-api/models/output/*
+!recommendation-api/models/output/sage/
+recommendation-api/models/output/sage/*
+!recommendation-api/models/output/sage/recommender_sage.pt
+!recommendation-api/models/output/sage/tune_cfg_sage.json
 !cdk/*/lib/
 cdk/*/build_tmp
