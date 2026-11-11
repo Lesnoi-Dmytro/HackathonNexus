@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import * as cdk from 'aws-cdk-lib';
-import { EC2CICDStack } from '../lib/ec2-stack';
+import { EC2CICDStack } from '../lib/ec2-ci-cd-stack';
 
 const app = new cdk.App();
 

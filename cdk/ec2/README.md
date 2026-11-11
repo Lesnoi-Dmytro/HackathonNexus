@@ -1,68 +1,67 @@
-# EC2 Instance CDK Example
+# HackathonNexus – EC2 CDK setup
 
-This project demonstrates how to create an EC2 instance with AWS CDK, including:
+Deploys the whole HackathonNexus stack to AWS on plain EC2 instances. Artifacts are **built locally** during `cdk deploy` and shipped to the instances as CDK assets. There is no CI/CD, so every code change needs a new `cdk deploy`.
 
-- VPC with public subnets
-- Security groups for SSH access
-- EC2 instance with Amazon Linux 2023
-- CloudFormation Init for instance configuration
-- Asset deployment via S3
-- CloudWatch integration
+Stack name: `EC2HackathonNexusStack`
+
+## Architecture
+
+| Component | Implementation |
+|-----------|----------------|
+| Network | VPC with public/private subnets, separate security groups for the main API, its ALB and the recommendation API |
+| Main API | Auto Scaling Group (1–2 `NANO` x86_64 instances) behind a public Application Load Balancer |
+| Recommendation API | Single `MICRO` x86_64 EC2 instance, reachable from the main API via its private DNS name |
+| Database | RDS PostgreSQL (password read from SSM) |
+| Cache | ElastiCache (Valkey) |
+| Frontend | Static files in an S3 bucket |
+| Entry point | CloudFront. It serves the frontend from S3 and proxies `/api` to the main API ALB |
 
 ## Prerequisites
 
-- AWS CLI configured with appropriate credentials
-- Node.js 16 or later
-- TypeScript
+- Node.js and npm
+- AWS CLI configured for the target account and region, and the account bootstrapped (`npx cdk bootstrap`)
+- Everything needed to build `hackathon-nexus-api` and `hackathon-nexus-front` locally (see `lib/build/`). Builds go to `build_tmp/`
+- An SSH public key file on disk
+- SSM `SecureString` parameters created **before** deploy (the stack only reads them):
 
-## Environment Variables
+  | Parameter | Used by |
+  |-----------|---------|
+  | `/hackathon-nexus/db/password` | RDS, main API, recommendation API |
+  | `/hackathon-nexus/recommendations-api/api-key` | recommendation API, main API |
 
-You can customize the deployment with these environment variables:
+## Configuration
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `LOG_LEVEL` | Logging level | `INFO` |
-| `SSH_PUB_KEY` | Your SSH public key for instance access | ` ` (empty) |
-| `CPU_TYPE` | CPU architecture (`ARM64` or `X86`) | `ARM64` |
-| `INSTANCE_SIZE` | Instance size (`LARGE`, `XLARGE`, `XLARGE2`, `XLARGE4`) | `LARGE` |
+Set in `.env` (loaded with dotenv) or in the shell:
 
-## Getting Started
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `SSH_PUB_KEY_PATH` | Path to the SSH public key file. It must exist, or the stack throws | yes |
+
+## Deploy
 
 ```bash
-# Install dependencies
 npm install
-
-# Build the project
-npm run build
-
-# Deploy the stack
 npx cdk deploy
 ```
 
-## Connecting to the Instance
+## Outputs
 
-After deployment, the CDK will output commands to connect to your instance:
+`mainApiEndpoint`, `frontendEndpoint`, `frontendBucketName`, `recommendationsApiEndpoint`, `dbEndpoint`, `valkeyEndpoint`, `sshCommand`.
 
-- Using SSH: `ssh ec2-user@<public-dns-name>`
-- Using SSM: `aws ssm start-session --target <instance-id>`
+## Updating
 
-## Testing
+Re-run `npx cdk deploy`. The API and frontend are rebuilt locally and redeployed.
 
-```bash
-npm test
-```
-
-## Clean Up
+## Clean up
 
 ```bash
 npx cdk destroy
 ```
 
-## Project Structure
+## Project structure
 
-- `bin/app.ts` - Entry point for CDK application
-- `lib/ec2-stack.ts` - Main stack definition
-- `lib/constructs/` - CDK constructs for VPC and EC2 server
-- `lib/utils/` - Utility functions and validators
-- `lib/resources/` - Configuration files and assets for the EC2 instance
-- `test/` - Jest tests for the CDK constructs
+- `bin/app.ts` – CDK app entry point
+- `lib/ec2-stack.ts` – stack definition
+- `lib/build/` – local build of the API and frontend
+- `lib/constructs/` – VPC, RDS, ElastiCache, main API, recommendation API, frontend, CloudFront
+- `lib/utils/env-validator.ts` – input validation

@@ -1,68 +1,79 @@
-# EC2 Instance CDK Example
+# HackathonNexus – EC2 + CI/CD CDK setup
 
-This project demonstrates how to create an EC2 instance with AWS CDK, including:
+Same EC2-based architecture as [`../ec2`](../ec2), but nothing is built locally. Each component has its own AWS CodePipeline that builds and deploys from GitHub when the relevant files change on `main`.
 
-- VPC with public subnets
-- Security groups for SSH access
-- EC2 instance with Amazon Linux 2023
-- CloudFormation Init for instance configuration
-- Asset deployment via S3
-- CloudWatch integration
+Stack name: `EC2HackathonNexusStackCICD`
+
+## Architecture
+
+| Component | Implementation |
+|-----------|----------------|
+| Network | VPC, security groups for the main API, its ALB and the recommendation API |
+| Main API | Auto Scaling Group (1–2 `SMALL` x86_64 instances) behind a public ALB |
+| Recommendation API | Single `MEDIUM` x86_64 EC2 instance |
+| Database | RDS PostgreSQL |
+| Cache | ElastiCache (Valkey) |
+| Frontend | S3 bucket behind CloudFront |
+
+### Pipelines
+
+All three use a CodeStar (GitHub) connection as the source and run only on pushes to `main` that touch the listed paths.
+
+| Pipeline | Trigger paths | Build | Deploy |
+|----------|---------------|-------|--------|
+| Main API | `hackathon-nexus-api/**`, `cdk/ec2-ci-cd/assets/main-api/**` | CodeBuild (`assets/main-api/buildspec.yml`) | CodeDeploy to the ASG, with ALB and auto-rollback |
+| Recommendation API | `recommendation-api/**`, `cdk/ec2-ci-cd/assets/recommendation-api/**` | CodeBuild | CodeDeploy to the instance tagged `Deploy=recommendation-api` |
+| Frontend | `hackathon-nexus-front/**` | CodeBuild (`VITE_API_URL` is set to the CloudFront `/api`) | S3 sync, then CloudFront invalidation |
+
+Changes to the CDK code itself (`cdk/ec2-ci-cd/lib/**`) are not deployed by a pipeline. Run `cdk deploy` for those.
 
 ## Prerequisites
 
-- AWS CLI configured with appropriate credentials
-- Node.js 16 or later
-- TypeScript
+- Node.js and npm
+- AWS CLI configured for the target account and region, and the account bootstrapped (`npx cdk bootstrap`)
+- An SSH public key file on disk
+- A CodeStar/CodeConnections connection to the GitHub repo, authorised in the console. Its ARN, the repo owner and the repo name are **hardcoded** in `lib/constructs/pipelines/*.ts`. Change them there if you use a different account or repo
+- SSM `SecureString` parameters created **before** deploy:
 
-## Environment Variables
+  | Parameter | Used by |
+  |-----------|---------|
+  | `/hackathon-nexus/db/password` | RDS, main API, recommendation API |
+  | `/hackathon-nexus/recommendations-api/api-key` | recommendation API, main API |
 
-You can customize the deployment with these environment variables:
+## Configuration
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `LOG_LEVEL` | Logging level | `INFO` |
-| `SSH_PUB_KEY` | Your SSH public key for instance access | ` ` (empty) |
-| `CPU_TYPE` | CPU architecture (`ARM64` or `X86`) | `ARM64` |
-| `INSTANCE_SIZE` | Instance size (`LARGE`, `XLARGE`, `XLARGE2`, `XLARGE4`) | `LARGE` |
+Set in `.env` or in the shell:
 
-## Getting Started
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `SSH_PUB_KEY_PATH` | Path to the SSH public key file | yes |
+
+## Deploy
 
 ```bash
-# Install dependencies
 npm install
-
-# Build the project
-npm run build
-
-# Deploy the stack
 npx cdk deploy
 ```
 
-## Connecting to the Instance
+After the stack is up, the pipelines run on the next matching push. To deploy the code immediately, open each pipeline in the console and choose **Release change**.
 
-After deployment, the CDK will output commands to connect to your instance:
+## Outputs
 
-- Using SSH: `ssh ec2-user@<public-dns-name>`
-- Using SSM: `aws ssm start-session --target <instance-id>`
+`mainApiEndpoint`, `frontendEndpoint`, `frontendBucketName`, `recommendationsApiEndpoint`, `dbEndpoint`, `valkeyEndpoint`, `sshCommand`.
 
-## Testing
-
-```bash
-npm test
-```
-
-## Clean Up
+## Clean up
 
 ```bash
 npx cdk destroy
 ```
 
-## Project Structure
+Pipeline artifact buckets are created with `autoDeleteObjects`, so they are removed with the stack.
 
-- `bin/app.ts` - Entry point for CDK application
-- `lib/ec2-stack.ts` - Main stack definition
-- `lib/constructs/` - CDK constructs for VPC and EC2 server
-- `lib/utils/` - Utility functions and validators
-- `lib/resources/` - Configuration files and assets for the EC2 instance
-- `test/` - Jest tests for the CDK constructs
+## Project structure
+
+- `bin/app.ts` – CDK app entry point
+- `lib/ec2-ci-cd-stack.ts` – stack definition
+- `lib/constructs/` – VPC, RDS, ElastiCache, main API, recommendation API, frontend, CloudFront
+- `lib/constructs/pipelines/` – the three CodePipeline definitions
+- `assets/` – buildspecs and deploy scripts used by the pipelines
+- `lib/utils/env-validator.ts` – input validation
