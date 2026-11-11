@@ -1,0 +1,16 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 24
+  build:
+    commands:
+      - cd hackathon-nexus-front
+      - npm i
+      - npm run build
+
+artifacts:
+  base-directory: hackathon-nexus-front/dist
+  files:
+    - '**/*'

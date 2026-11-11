@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - mkdir -p bundle
+      - mkdir -p bundle/models/output/sage bundle/models/recommenders
+      - cp recommendation-api/main.py recommendation-api/requirements-server.txt bundle/
+      - cp -r recommendation-api/api recommendation-api/core recommendation-api/entities bundle/
+      - cp recommendation-api/models/recommenders/sage.py recommendation-api/models/recommenders/graph_utils.py bundle/models/recommenders/
+      - cp recommendation-api/models/output/sage/recommender_sage.pt recommendation-api/models/output/sage/tune_cfg_sage.json bundle/models/output/sage/
+      - cp cdk/ec2-ci-cd/assets/recommendation-api/appspec.yml cdk/ec2-ci-cd/assets/recommendation-api/hackathon-nexus-recommendation-api.service bundle/
+      - cp -r cdk/ec2-ci-cd/assets/recommendation-api/scripts bundle/scripts
+      - chmod +x bundle/scripts/*.sh
+
+artifacts:
+  base-directory: bundle
+  files:
+    - '**/*'
